@@ -16,9 +16,9 @@ jobs:
           cache: 'pip'
       - run: pip install -r requirements.txt
       - run: |
-          export DBT_HOST=${{ secrets.STAGING_HOST }}
-          export DBT_USER=${{ secrets.STAGING_USER }}
-          export DBT_PASSWORD=${{ secrets.STAGING_PASSWORD }}
-          export DBT_PORT=443
-          export DBT_SECURE=True
-          dbt --debug run
+          echo "      host: '${{ secrets.STAGING_HOST }}'" >> profiles.yml
+          echo "      user: '${{ secrets.STAGING_USER }}'" >> profiles.yml
+          echo "      password: '${{ secrets.STAGING_PASSWORD }}'" >> profiles.yml
+          echo "      port: 443" >> profiles.yml
+          echo "      secure: True" >> profiles.yml
+      - run: dbt --debug run

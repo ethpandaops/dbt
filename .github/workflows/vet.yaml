@@ -8,11 +8,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-          cache: 'pip'
-      - run: pip install -r requirements.txt
       - uses: yu-iskw/action-sqlfluff@v3
         id: lint-sql
         with:
@@ -23,6 +18,12 @@ jobs:
           config: "${{ github.workspace }}/.sqlfluff"
           paths: '${{ github.workspace }}/models'
           extra_requirements_txt: '${{ github.workspace }}/requirements.txt'
+        env:
+          DBT_HOST: ${{ secrets.STAGING_HOST }}
+          DBT_USER: ${{ secrets.STAGING_USER }}
+          DBT_PASSWORD: ${{ secrets.STAGING_PASSWORD }}
+          DBT_PORT: 443
+          DBT_SECURE: True
       - name: 'Show outputs'
         shell: bash
         run: |

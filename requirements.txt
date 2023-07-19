@@ -1,3 +1,4 @@
 dbt-clickhouse @ git+https://github.com/savid/dbt-clickhouse.git@42bbca96fcfcea9f9ed51a5cf87cd6075e3b9a68
 dbt-core==1.4.6
 sqlfluff-templater-dbt==2.1.2
+sqlfluff==2.1.2

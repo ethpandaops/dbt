@@ -11,9 +11,9 @@
 WITH blocks AS (
     SELECT
         block,
+        meta_network_name,
         count(*) AS total,
-        min(epoch) AS first_epoch,
-        meta_network_name
+        min(epoch) AS first_epoch
     FROM
         {{ source('default', 'beacon_api_eth_v1_events_block') }}
     GROUP BY block, meta_network_name

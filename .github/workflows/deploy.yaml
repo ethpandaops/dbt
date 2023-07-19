@@ -15,10 +15,11 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
       - run: pip install -r requirements.txt
-      - run: |
-          echo "      host: '${{ secrets.STAGING_HOST }}'" >> profiles.yml
-          echo "      user: '${{ secrets.STAGING_USER }}'" >> profiles.yml
-          echo "      password: '${{ secrets.STAGING_PASSWORD }}'" >> profiles.yml
-          echo "      port: 443" >> profiles.yml
-          echo "      secure: True" >> profiles.yml
-      - run: dbt --debug run
+      - name: dbt run
+        uses: mwhitaker/dbt-action@v1.5.0
+        with:
+          dbt_command: "dbt --debug run --profiles-dir ."
+        env:
+          DBT_HOST: ${{ secrets.STAGING_HOST }}
+          DBT_USER: ${{ secrets.STAGING_USER }}
+          DBT_PASSWORD: ${{ secrets.STAGING_PASSWORD }}

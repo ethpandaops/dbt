@@ -1,0 +1,10 @@
+dbt:
+  target: clickhouse
+  outputs:
+    clickhouse:
+      type: clickhouse
+      schema: dbt
+      verify: False
+      cluster: '{cluster}'
+      cluster_mode: True
+      local_suffix: '_local'

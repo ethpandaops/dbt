@@ -1,0 +1,27 @@
+name: deploy
+on:
+  workflow_dispatch:
+    branches:
+      - master
+
+jobs:
+  dbt:
+    name: staging
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - run: pip install -r requirements.txt
+      - name: dbt run
+        uses: mwhitaker/dbt-action@v1.5.0
+        with:
+          dbt_command: "dbt run --profiles-dir ."
+        env:
+          DBT_HOST: ${{ secrets.STAGING_HOST }}
+          DBT_USER: ${{ secrets.STAGING_USER }}
+          DBT_PASSWORD: ${{ secrets.STAGING_PASSWORD }}
+          DBT_PORT: 443
+          DBT_SECURE: True

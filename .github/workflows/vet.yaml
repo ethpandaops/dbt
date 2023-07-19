@@ -1,0 +1,22 @@
+name: vet
+on:
+  pull_request:
+
+jobs:
+  sqlfluff:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - run: pip install -r requirements.txt
+      - run: |
+          echo "      host: '${{ secrets.STAGING_HOST }}'" >> profiles.yml
+          echo "      user: '${{ secrets.STAGING_USER }}'" >> profiles.yml
+          echo "      password: '${{ secrets.STAGING_PASSWORD }}'" >> profiles.yml
+          echo "      port: 443" >> profiles.yml
+          echo "      secure: True" >> profiles.yml
+      - run: sqlfluff lint --format=json .

@@ -22,6 +22,7 @@ jobs:
           sqlfluff_command: "lint"
           config: "${{ github.workspace }}/.sqlfluff"
           paths: '${{ github.workspace }}/models'
+          extra_requirements_txt: '${{ github.workspace }}/requirements.txt'
       - name: 'Show outputs'
         shell: bash
         run: |

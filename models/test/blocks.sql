@@ -13,9 +13,17 @@ WITH blocks AS (
         block,
         meta_network_name,
         count(*) AS total,
-        min(epoch) AS first_epoch
+        min(slot_start_date_time) AS first_slot_start_date_time
     FROM
         {{ source('default', 'beacon_api_eth_v1_events_block') }}
+
+    {% if is_incremental() %}
+        WHERE slot_start_date_time > (
+            SELECT max(first_slot_start_date_time) - INTERVAL '10 MINUTE'
+            FROM {{ this }}
+        )
+    {% endif %}
+
     GROUP BY block, meta_network_name
 )
 
@@ -24,6 +32,9 @@ FROM blocks
 
 {% if is_incremental() %}
 
-    WHERE first_epoch > (SELECT max(first_epoch) - 2 FROM {{ this }})
+    WHERE first_slot_start_date_time > (
+        SELECT max(first_slot_start_date_time) - INTERVAL '10 MINUTE'
+        FROM {{ this }}
+    )
 
 {% endif %}

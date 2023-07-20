@@ -3,13 +3,13 @@ dbt:
   outputs:
     clickhouse:
       type: clickhouse
-      schema: "{{ env_var('DBT_SCHEMA', 'dbt') }}"
+      schema: dbt
       verify: False
       cluster: '{cluster}'
       cluster_mode: True
       local_suffix: '_local'
-      host: "{{ env_var('DBT_HOST', 'localhost') }}"
-      port: "{{ env_var('DBT_PORT', 443) }}"
-      secure: "{{ env_var('DBT_SECURE', True) }}"
-      user: "{{ env_var('DBT_USER', 'default') }}"
-      password: "{{ env_var('DBT_PASSWORD', '') }}"
+      host: "{{ env_var('DBT_HOST') }}"
+      port: 443
+      secure: True
+      user: "{{ env_var('DBT_USER') }}"
+      password: "{{ env_var('DBT_PASSWORD') }}"

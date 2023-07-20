@@ -13,7 +13,7 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
       - run: pip install -r requirements.txt
-      - run: sqlfluff lint --format=json .
+      - run: sqlfluff lint .
         env:
           DBT_HOST: ${{ secrets.STAGING_HOST }}
           DBT_USER: ${{ secrets.STAGING_USER }}

@@ -1,4 +1,5 @@
 on: [push]
+
 jobs:
   staging:
     name: Deploy to Staging Cloudflare Pages
@@ -24,5 +25,33 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: ethpandaops-platform-staging-dbt
+          directory: target
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
+  production:
+    name: Deploy to Production Cloudflare Pages
+    needs: staging
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - run: pip install -r requirements.txt
+      - run: dbt docs generate
+        env:
+          DBT_HOST: ${{ secrets.PRODUCTION_HOST }}
+          DBT_USER: ${{ secrets.PRODUCTION_USER }}
+          DBT_PASSWORD: ${{ secrets.PRODUCTION_PASSWORD }}
+      - name: Publish
+        uses: cloudflare/pages-action@1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ethpandaops-platform-production-dbt
           directory: target
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}

@@ -3,13 +3,14 @@ version: 2
 sources:
 - name: default
   tables:
-  - name: beacon_api_eth_v1_events_head
-  - name: beacon_api_eth_v1_events_block
+  - name: beacon_api_eth_v1_beacon_committee_local
   - name: beacon_api_eth_v1_events_attestation
-  - name: beacon_api_eth_v1_events_voluntary_exit
-  - name: beacon_api_eth_v1_events_finalized_checkpoint
+  - name: beacon_api_eth_v1_events_block
   - name: beacon_api_eth_v1_events_chain_reorg
   - name: beacon_api_eth_v1_events_contribution_and_proof
+  - name: beacon_api_eth_v1_events_finalized_checkpoint
+  - name: beacon_api_eth_v1_events_head
+  - name: beacon_api_eth_v1_events_voluntary_exit
+  - name: beacon_api_eth_v2_beacon_block
   - name: beacon_api_slot
   - name: mempool_transaction
-  - name: beacon_api_eth_v2_beacon_block

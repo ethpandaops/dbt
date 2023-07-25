@@ -1,0 +1,25 @@
+version: 2
+
+models:
+  - name: blocks
+    config:
+      tags: ['beacon', 'block']
+    description: >
+      Beacon blocks with how many sentries reported them
+    columns:
+    - name: unique_key
+      description: xxHash32 of the beacon block root hash
+    - name: updated_at
+      description: when this record was last updated
+    - name: beacon_block_root_hash
+      description: hash tree root of the beacon block
+    - name: slot
+      description: slot number of the beacon block
+    - name: slot_started_at
+      description: when the slot started
+    - name: epoch
+      description: epoch number of the beacon block
+    - name: network
+      description: network name, e.g. mainnet
+    - name: total_witnesses
+      description: total number of sentries that witnessed this block

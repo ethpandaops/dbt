@@ -1,0 +1,992 @@
+version: 2
+
+sources:
+- name: clickhouse
+  database: default
+  loader: xatu
+  tables:
+  - name: beacon_api_eth_v1_events_head
+    meta:
+      networks: mainnet, goerli, sepolia
+    tags: ['sentry', 'consensus', 'beacon', 'API', 'eventstream', 'head']
+    description: >
+      Contains beacon API eventstream "head" data from each sentry client attached to a beacon node.
+    columns:
+    - name: event_date_time
+      type: DateTime64(3)
+      description: When the sentry received the event from a beacon node
+    - name: slot
+      type: UInt32
+      description: Slot number in the beacon API event stream payload
+    - name: slot_start_date_time
+      type: DateTime
+      description: The wall clock time when the slot started
+    - name: propagation_slot_start_diff
+      type: DateTime
+      description: The difference between the event_date_time and the slot_start_date_time
+    - name: block
+      type: FixedString(66)
+      description: The beacon block root hash in the beacon API event stream payload
+    - name: epoch
+      type: UInt32
+      description: The epoch number in the beacon API event stream payload
+    - name: epoch_start_date_time
+      type: DateTime
+      description: The wall clock time when the epoch started
+    - name: epoch_transition
+      type: Bool
+      description: If the event is an epoch transition
+    - name: execution_optimistic
+      type: Bool
+      description: If the attached beacon node is running in execution optimistic mode
+    - name: previous_duty_dependent_root
+      type: FixedString(66)
+      description: The previous duty dependent root in the beacon API event stream payload
+    - name: current_duty_dependent_root
+      type: FixedString(66)
+      description: The current duty dependent root in the beacon API event stream payload
+    - name: meta_client_name
+      type: LowCardinality(String)
+      description: Name of the client that generated the event
+    - name: meta_client_id
+      type: String
+      description: Unique Session ID of the client that generated the event. This changes every time the client is restarted.
+    - name: meta_client_version
+      type: LowCardinality(String)
+      description: Version of the client that generated the event
+    - name: meta_client_implementation
+      type: LowCardinality(String)
+      description: Implementation of the client that generated the event
+    - name: meta_client_os
+      type: LowCardinality(String)
+      description: Operating system of the client that generated the event
+    - name: meta_client_ip
+      type: Nullable(IPv6)
+      description: IP address of the client that generated the event
+    - name: meta_client_geo_city
+      type: LowCardinality(String)
+      description: City of the client that generated the event
+    - name: meta_client_geo_country
+      type: LowCardinality(String)
+      description: Country of the client that generated the event
+    - name: meta_client_geo_country_code
+      type: LowCardinality(String)
+      description: Country code of the client that generated the event
+    - name: meta_client_geo_continent_code
+      type: LowCardinality(String)
+      description: Continent code of the client that generated the event
+    - name: meta_client_geo_longitude
+      type: Nullable(Float64)
+      description: Longitude of the client that generated the event
+    - name: meta_client_geo_latitude
+      type: Nullable(Float64)
+      description: Latitude of the client that generated the event
+    - name: meta_client_geo_autonomous_system_number
+      type: Nullable(UInt32)
+      description: Autonomous system number of the client that generated the event
+    - name: meta_client_geo_autonomous_system_organization
+      type: Nullable(String)
+      description: Autonomous system organization of the client that generated the event
+    - name: meta_network_id
+      type: Int32
+      description: Ethereum network ID
+    - name: meta_network_name
+      type: LowCardinality(String)
+      description: Ethereum network name
+    - name: meta_consensus_version
+      type: LowCardinality(String)
+      description: Ethereum consensus client version that generated the event
+    - name: meta_consensus_version_major
+      type: LowCardinality(String)
+      description: Ethereum consensus client major version that generated the event
+    - name: meta_consensus_version_minor
+      type: LowCardinality(String)
+      description: Ethereum consensus client minor version that generated the event
+    - name: meta_consensus_version_patch
+      type: LowCardinality(String)
+      description: Ethereum consensus client patch version that generated the event
+    - name: meta_consensus_implementation
+      type: LowCardinality(String)
+      description: Ethereum consensus client implementation that generated the event
+    - name: meta_labels
+      type: Map(String, String)
+      description: Labels associated with the event
+  - name: beacon_api_eth_v1_events_block
+    meta:
+      networks: mainnet, goerli, sepolia
+    tags: ['sentry', 'consensus', 'beacon', 'API', 'eventstream', 'block']
+    description: >
+      Contains beacon API eventstream "block" data from each sentry client attached to a beacon node.
+    columns:
+    - name: event_date_time
+      type: DateTime64(3)
+      description: "When the sentry received the event from a beacon node"
+    - name: slot
+      type: UInt32
+      description: "Slot number in the beacon API event stream payload"
+    - name: slot_start_date_time
+      type: DateTime
+      description: "The wall clock time when the slot started"
+    - name: propagation_slot_start_diff
+      type: DateTime
+      description: "The difference between the event_date_time and the slot_start_date_time"
+    - name: block
+      type: FixedString(66)
+      description: "The beacon block root hash in the beacon API event stream payload"
+    - name: epoch
+      type: UInt32
+      description: "The epoch number in the beacon API event stream payload"
+    - name: epoch_start_date_time
+      type: DateTime
+      description: "The wall clock time when the epoch started"
+    - name: execution_optimistic
+      type: Bool
+      description: "If the attached beacon node is running in execution optimistic mode"
+    - name: meta_client_name
+      type: LowCardinality(String)
+      description: Name of the client that generated the event
+    - name: meta_client_id
+      type: String
+      description: Unique Session ID of the client that generated the event. This changes every time the client is restarted.
+    - name: meta_client_version
+      type: LowCardinality(String)
+      description: Version of the client that generated the event
+    - name: meta_client_implementation
+      type: LowCardinality(String)
+      description: Implementation of the client that generated the event
+    - name: meta_client_os
+      type: LowCardinality(String)
+      description: Operating system of the client that generated the event
+    - name: meta_client_ip
+      type: Nullable(IPv6)
+      description: IP address of the client that generated the event
+    - name: meta_client_geo_city
+      type: LowCardinality(String)
+      description: City of the client that generated the event
+    - name: meta_client_geo_country
+      type: LowCardinality(String)
+      description: Country of the client that generated the event
+    - name: meta_client_geo_country_code
+      type: LowCardinality(String)
+      description: Country code of the client that generated the event
+    - name: meta_client_geo_continent_code
+      type: LowCardinality(String)
+      description: Continent code of the client that generated the event
+    - name: meta_client_geo_longitude
+      type: Nullable(Float64)
+      description: Longitude of the client that generated the event
+    - name: meta_client_geo_latitude
+      type: Nullable(Float64)
+      description: Latitude of the client that generated the event
+    - name: meta_client_geo_autonomous_system_number
+      type: Nullable(UInt32)
+      description: Autonomous system number of the client that generated the event
+    - name: meta_client_geo_autonomous_system_organization
+      type: Nullable(String)
+      description: Autonomous system organization of the client that generated the event
+    - name: meta_network_id
+      type: Int32
+      description: Ethereum network ID
+    - name: meta_network_name
+      type: LowCardinality(String)
+      description: Ethereum network name
+    - name: meta_consensus_version
+      type: LowCardinality(String)
+      description: Ethereum consensus client version that generated the event
+    - name: meta_consensus_version_major
+      type: LowCardinality(String)
+      description: Ethereum consensus client major version that generated the event
+    - name: meta_consensus_version_minor
+      type: LowCardinality(String)
+      description: Ethereum consensus client minor version that generated the event
+    - name: meta_consensus_version_patch
+      type: LowCardinality(String)
+      description: Ethereum consensus client patch version that generated the event
+    - name: meta_consensus_implementation
+      type: LowCardinality(String)
+      description: Ethereum consensus client implementation that generated the event
+    - name: meta_labels
+      type: Map(String, String)
+      description: Labels associated with the event
+  - name: beacon_api_eth_v1_events_attestation
+    meta:
+      networks: mainnet, goerli, sepolia
+    tags: ['sentry', 'consensus', 'beacon', 'API', 'eventstream', 'attestation']
+    description: >
+      Contains beacon API eventstream "attestation" data from each sentry client attached to a beacon node.
+    columns:
+    - name: event_date_time
+      type: DateTime64(3)
+      description: "When the sentry received the event from a beacon node"
+    - name: slot
+      type: UInt32
+      description: "Slot number in the beacon API event stream payload"
+    - name: slot_start_date_time
+      type: DateTime
+      description: "The wall clock time when the slot started"
+    - name: propagation_slot_start_diff
+      type: DateTime
+      description: "The difference between the event_date_time and the slot_start_date_time"
+    - name: committee_index
+      type: LowCardinality(String)
+      description: "The committee index in the beacon API event stream payload"
+    - name: attesting_validator_index
+      type: Nullable(UInt32)
+      description: "The index of the validator attesting to the event"
+    - name: attesting_validator_committee_index
+      type: LowCardinality(String)
+      description: "The committee index of the attesting validator"
+    - name: signature
+      type: String
+      description: "The signature of the event in the beacon API event stream payload"
+    - name: aggregation_bits
+      type: String
+      description: "The aggregation bits of the event in the beacon API event stream payload"
+    - name: beacon_block_root
+      type: FixedString(66)
+      description: "The beacon block root hash in the beacon API event stream payload"
+    - name: epoch
+      type: UInt32
+      description: "The epoch number in the beacon API event stream payload"
+    - name: epoch_start_date_time
+      type: DateTime
+      description: "The wall clock time when the epoch started"
+    - name: source_epoch
+      type: UInt32
+      description: "The source epoch number in the beacon API event stream payload"
+    - name: source_epoch_start_date_time
+      type: DateTime
+      description: "The wall clock time when the source epoch started"
+    - name: source_root
+      type: FixedString(66)
+      description: "The source beacon block root hash in the beacon API event stream payload"
+    - name: target_epoch
+      type: UInt32
+      description: "The target epoch number in the beacon API event stream payload"
+    - name: target_epoch_start_date_time
+      type: DateTime
+      description: "The wall clock time when the target epoch started"
+    - name: target_root
+      type: FixedString(66)
+      description: "The target beacon block root hash in the beacon API event stream payload"
+    - name: meta_client_name
+      type: LowCardinality(String)
+      description: Name of the client that generated the event
+    - name: meta_client_id
+      type: String
+      description: Unique Session ID of the client that generated the event. This changes every time the client is restarted.
+    - name: meta_client_version
+      type: LowCardinality(String)
+      description: Version of the client that generated the event
+    - name: meta_client_implementation
+      type: LowCardinality(String)
+      description: Implementation of the client that generated the event
+    - name: meta_client_os
+      type: LowCardinality(String)
+      description: Operating system of the client that generated the event
+    - name: meta_client_ip
+      type: Nullable(IPv6)
+      description: IP address of the client that generated the event
+    - name: meta_client_geo_city
+      type: LowCardinality(String)
+      description: City of the client that generated the event
+    - name: meta_client_geo_country
+      type: LowCardinality(String)
+      description: Country of the client that generated the event
+    - name: meta_client_geo_country_code
+      type: LowCardinality(String)
+      description: Country code of the client that generated the event
+    - name: meta_client_geo_continent_code
+      type: LowCardinality(String)
+      description: Continent code of the client that generated the event
+    - name: meta_client_geo_longitude
+      type: Nullable(Float64)
+      description: Longitude of the client that generated the event
+    - name: meta_client_geo_latitude
+      type: Nullable(Float64)
+      description: Latitude of the client that generated the event
+    - name: meta_client_geo_autonomous_system_number
+      type: Nullable(UInt32)
+      description: Autonomous system number of the client that generated the event
+    - name: meta_client_geo_autonomous_system_organization
+      type: Nullable(String)
+      description: Autonomous system organization of the client that generated the event
+    - name: meta_network_id
+      type: Int32
+      description: Ethereum network ID
+    - name: meta_network_name
+      type: LowCardinality(String)
+      description: Ethereum network name
+    - name: meta_consensus_version
+      type: LowCardinality(String)
+      description: Ethereum consensus client version that generated the event
+    - name: meta_consensus_version_major
+      type: LowCardinality(String)
+      description: Ethereum consensus client major version that generated the event
+    - name: meta_consensus_version_minor
+      type: LowCardinality(String)
+      description: Ethereum consensus client minor version that generated the event
+    - name: meta_consensus_version_patch
+      type: LowCardinality(String)
+      description: Ethereum consensus client patch version that generated the event
+    - name: meta_consensus_implementation
+      type: LowCardinality(String)
+      description: Ethereum consensus client implementation that generated the event
+    - name: meta_labels
+      type: Map(String, String)
+      description: Labels associated with the event
+  - name: beacon_api_eth_v1_events_voluntary_exit
+    meta:
+      networks: mainnet, goerli, sepolia
+    tags: ['sentry', 'consensus', 'beacon', 'API', 'eventstream', 'voluntary', 'exit']
+    description: >
+      Contains beacon API eventstream "voluntary exit" data from each sentry client attached to a beacon node.
+    columns:
+    - name: event_date_time
+      type: DateTime64(3)
+      description: "When the sentry received the event from a beacon node"
+    - name: epoch
+      type: UInt32
+      description: "The epoch number in the beacon API event stream payload"
+    - name: epoch_start_date_time
+      type: DateTime
+      description: "The wall clock time when the epoch started"
+    - name: validator_index
+      type: UInt32
+      description: "The index of the validator making the voluntary exit"
+    - name: signature
+      type: String
+      description: "The signature of the voluntary exit in the beacon API event stream payload"
+    - name: meta_client_name
+      type: LowCardinality(String)
+      description: Name of the client that generated the event
+    - name: meta_client_id
+      type: String
+      description: Unique Session ID of the client that generated the event. This changes every time the client is restarted.
+    - name: meta_client_version
+      type: LowCardinality(String)
+      description: Version of the client that generated the event
+    - name: meta_client_implementation
+      type: LowCardinality(String)
+      description: Implementation of the client that generated the event
+    - name: meta_client_os
+      type: LowCardinality(String)
+      description: Operating system of the client that generated the event
+    - name: meta_client_ip
+      type: Nullable(IPv6)
+      description: IP address of the client that generated the event
+    - name: meta_client_geo_city
+      type: LowCardinality(String)
+      description: City of the client that generated the event
+    - name: meta_client_geo_country
+      type: LowCardinality(String)
+      description: Country of the client that generated the event
+    - name: meta_client_geo_country_code
+      type: LowCardinality(String)
+      description: Country code of the client that generated the event
+    - name: meta_client_geo_continent_code
+      type: LowCardinality(String)
+      description: Continent code of the client that generated the event
+    - name: meta_client_geo_longitude
+      type: Nullable(Float64)
+      description: Longitude of the client that generated the event
+    - name: meta_client_geo_latitude
+      type: Nullable(Float64)
+      description: Latitude of the client that generated the event
+    - name: meta_client_geo_autonomous_system_number
+      type: Nullable(UInt32)
+      description: Autonomous system number of the client that generated the event
+    - name: meta_client_geo_autonomous_system_organization
+      type: Nullable(String)
+      description: Autonomous system organization of the client that generated the event
+    - name: meta_network_id
+      type: Int32
+      description: Ethereum network ID
+    - name: meta_network_name
+      type: LowCardinality(String)
+      description: Ethereum network name
+    - name: meta_consensus_version
+      type: LowCardinality(String)
+      description: Ethereum consensus client version that generated the event
+    - name: meta_consensus_version_major
+      type: LowCardinality(String)
+      description: Ethereum consensus client major version that generated the event
+    - name: meta_consensus_version_minor
+      type: LowCardinality(String)
+      description: Ethereum consensus client minor version that generated the event
+    - name: meta_consensus_version_patch
+      type: LowCardinality(String)
+      description: Ethereum consensus client patch version that generated the event
+    - name: meta_consensus_implementation
+      type: LowCardinality(String)
+      description: Ethereum consensus client implementation that generated the event
+    - name: meta_labels
+      type: Map(String, String)
+      description: Labels associated with the event
+  - name: beacon_api_eth_v1_events_finalized_checkpoint
+    meta:
+      networks: mainnet, goerli, sepolia
+    tags: ['sentry', 'consensus', 'beacon', 'API', 'eventstream', 'finalized', 'checkpoint']
+    description: >
+      Contains beacon API eventstream "finalized checkpoint" data from each sentry client attached to a beacon node.
+    columns:
+    - name: event_date_time
+      type: DateTime64(3)
+      description: "When the sentry received the event from a beacon node"
+    - name: block
+      type: FixedString(66)
+      description: "The finalized block root hash in the beacon API event stream payload"
+    - name: state
+      type: FixedString(66)
+      description: "The finalized state root hash in the beacon API event stream payload"
+    - name: epoch
+      type: UInt32
+      description: "The epoch number in the beacon API event stream payload"
+    - name: epoch_start_date_time
+      type: DateTime
+      description: "The wall clock time when the epoch started"
+    - name: execution_optimistic
+      type: Bool
+      description: "Whether the execution of the epoch was optimistic"
+    - name: meta_client_name
+      type: LowCardinality(String)
+      description: Name of the client that generated the event
+    - name: meta_client_id
+      type: String
+      description: Unique Session ID of the client that generated the event. This changes every time the client is restarted.
+    - name: meta_client_version
+      type: LowCardinality(String)
+      description: Version of the client that generated the event
+    - name: meta_client_implementation
+      type: LowCardinality(String)
+      description: Implementation of the client that generated the event
+    - name: meta_client_os
+      type: LowCardinality(String)
+      description: Operating system of the client that generated the event
+    - name: meta_client_ip
+      type: Nullable(IPv6)
+      description: IP address of the client that generated the event
+    - name: meta_client_geo_city
+      type: LowCardinality(String)
+      description: City of the client that generated the event
+    - name: meta_client_geo_country
+      type: LowCardinality(String)
+      description: Country of the client that generated the event
+    - name: meta_client_geo_country_code
+      type: LowCardinality(String)
+      description: Country code of the client that generated the event
+    - name: meta_client_geo_continent_code
+      type: LowCardinality(String)
+      description: Continent code of the client that generated the event
+    - name: meta_client_geo_longitude
+      type: Nullable(Float64)
+      description: Longitude of the client that generated the event
+    - name: meta_client_geo_latitude
+      type: Nullable(Float64)
+      description: Latitude of the client that generated the event
+    - name: meta_client_geo_autonomous_system_number
+      type: Nullable(UInt32)
+      description: Autonomous system number of the client that generated the event
+    - name: meta_client_geo_autonomous_system_organization
+      type: Nullable(String)
+      description: Autonomous system organization of the client that generated the event
+    - name: meta_network_id
+      type: Int32
+      description: Ethereum network ID
+    - name: meta_network_name
+      type: LowCardinality(String)
+      description: Ethereum network name
+    - name: meta_consensus_version
+      type: LowCardinality(String)
+      description: Ethereum consensus client version that generated the event
+    - name: meta_consensus_version_major
+      type: LowCardinality(String)
+      description: Ethereum consensus client major version that generated the event
+    - name: meta_consensus_version_minor
+      type: LowCardinality(String)
+      description: Ethereum consensus client minor version that generated the event
+    - name: meta_consensus_version_patch
+      type: LowCardinality(String)
+      description: Ethereum consensus client patch version that generated the event
+    - name: meta_consensus_implementation
+      type: LowCardinality(String)
+      description: Ethereum consensus client implementation that generated the event
+    - name: meta_labels
+      type: Map(String, String)
+      description: Labels associated with the event
+  - name: beacon_api_eth_v1_events_chain_reorg
+    meta:
+      networks: mainnet, goerli, sepolia
+    tags: ['sentry', 'consensus', 'beacon', 'API', 'eventstream', 'chain', 'reorg']
+    description: >
+      Contains beacon API eventstream "chain reorg" data from each sentry client attached to a beacon node.
+    columns:
+    - name: event_date_time
+      type: DateTime64(3)
+      description: "When the sentry received the event from a beacon node"
+    - name: slot
+      type: UInt32
+      description: "The slot number of the chain reorg event in the beacon API event stream payload"
+    - name: slot_start_date_time
+      type: DateTime
+      description: "The wall clock time when the reorg slot started"
+    - name: propagation_slot_start_diff
+      type: DateTime
+      description: "Difference in slots between when the reorg occurred and when the sentry received the event"
+    - name: depth
+      type: UInt16
+      description: "The depth of the chain reorg in the beacon API event stream payload"
+    - name: old_head_block
+      type: FixedString(66)
+      description: "The old head block root hash in the beacon API event stream payload"
+    - name: new_head_block
+      type: FixedString(66)
+      description: "The new head block root hash in the beacon API event stream payload"
+    - name: old_head_state
+      type: FixedString(66)
+      description: "The old head state root hash in the beacon API event stream payload"
+    - name: new_head_state
+      type: FixedString(66)
+      description: "The new head state root hash in the beacon API event stream payload"
+    - name: epoch
+      type: UInt32
+      description: "The epoch number in the beacon API event stream payload"
+    - name: epoch_start_date_time
+      type: DateTime
+      description: "The wall clock time when the epoch started"
+    - name: execution_optimistic
+      type: Bool
+      description: "Whether the execution of the epoch was optimistic"
+    - name: meta_client_name
+      type: LowCardinality(String)
+      description: Name of the client that generated the event
+    - name: meta_client_id
+      type: String
+      description: Unique Session ID of the client that generated the event. This changes every time the client is restarted.
+    - name: meta_client_version
+      type: LowCardinality(String)
+      description: Version of the client that generated the event
+    - name: meta_client_implementation
+      type: LowCardinality(String)
+      description: Implementation of the client that generated the event
+    - name: meta_client_os
+      type: LowCardinality(String)
+      description: Operating system of the client that generated the event
+    - name: meta_client_ip
+      type: Nullable(IPv6)
+      description: IP address of the client that generated the event
+    - name: meta_client_geo_city
+      type: LowCardinality(String)
+      description: City of the client that generated the event
+    - name: meta_client_geo_country
+      type: LowCardinality(String)
+      description: Country of the client that generated the event
+    - name: meta_client_geo_country_code
+      type: LowCardinality(String)
+      description: Country code of the client that generated the event
+    - name: meta_client_geo_continent_code
+      type: LowCardinality(String)
+      description: Continent code of the client that generated the event
+    - name: meta_client_geo_longitude
+      type: Nullable(Float64)
+      description: Longitude of the client that generated the event
+    - name: meta_client_geo_latitude
+      type: Nullable(Float64)
+      description: Latitude of the client that generated the event
+    - name: meta_client_geo_autonomous_system_number
+      type: Nullable(UInt32)
+      description: Autonomous system number of the client that generated the event
+    - name: meta_client_geo_autonomous_system_organization
+      type: Nullable(String)
+      description: Autonomous system organization of the client that generated the event
+    - name: meta_network_id
+      type: Int32
+      description: Ethereum network ID
+    - name: meta_network_name
+      type: LowCardinality(String)
+      description: Ethereum network name
+    - name: meta_consensus_version
+      type: LowCardinality(String)
+      description: Ethereum consensus client version that generated the event
+    - name: meta_consensus_version_major
+      type: LowCardinality(String)
+      description: Ethereum consensus client major version that generated the event
+    - name: meta_consensus_version_minor
+      type: LowCardinality(String)
+      description: Ethereum consensus client minor version that generated the event
+    - name: meta_consensus_version_patch
+      type: LowCardinality(String)
+      description: Ethereum consensus client patch version that generated the event
+    - name: meta_consensus_implementation
+      type: LowCardinality(String)
+      description: Ethereum consensus client implementation that generated the event
+    - name: meta_labels
+      type: Map(String, String)
+      description: Labels associated with the event
+  - name: beacon_api_eth_v1_events_contribution_and_proof
+    meta:
+      networks: mainnet, goerli, sepolia
+    tags: ['sentry', 'consensus', 'beacon', 'API', 'eventstream', 'contribution', 'proof']
+    description: >
+      Contains beacon API eventstream "contribution and proof" data from each sentry client attached to a beacon node.
+    columns:
+    - name: event_date_time
+      type: DateTime64(3)
+      description: "When the sentry received the event from a beacon node"
+    - name: aggregator_index
+      type: UInt32
+      description: "The validator index of the aggregator in the beacon API event stream payload"
+    - name: contribution_slot
+      type: UInt32
+      description: "The slot number of the contribution in the beacon API event stream payload"
+    - name: contribution_slot_start_date_time
+      type: DateTime
+      description: "The wall clock time when the contribution slot started"
+    - name: contribution_propagation_slot_start_diff
+      type: UInt32
+      description: "Difference in slots between when the contribution occurred and when the sentry received the event"
+    - name: contribution_beacon_block_root
+      type: FixedString(66)
+      description: "The beacon block root hash in the beacon API event stream payload"
+    - name: contribution_subcommittee_index
+      type: LowCardinality(String)
+      description: "The subcommittee index of the contribution in the beacon API event stream payload"
+    - name: contribution_aggregation_bits
+      type: String
+      description: "The aggregation bits of the contribution in the beacon API event stream payload"
+    - name: contribution_signature
+      type: String
+      description: "The signature of the contribution in the beacon API event stream payload"
+    - name: contribution_epoch
+      type: UInt32
+      description: "The epoch number of the contribution in the beacon API event stream payload"
+    - name: contribution_epoch_start_date_time
+      type: DateTime
+      description: "The wall clock time when the contribution epoch started"
+    - name: selection_proof
+      type: String
+      description: "The selection proof in the beacon API event stream payload"
+    - name: signature
+      type: String
+      description: "The signature in the beacon API event stream payload"
+    - name: meta_client_name
+      type: LowCardinality(String)
+      description: Name of the client that generated the event
+    - name: meta_client_id
+      type: String
+      description: Unique Session ID of the client that generated the event. This changes every time the client is restarted.
+    - name: meta_client_version
+      type: LowCardinality(String)
+      description: Version of the client that generated the event
+    - name: meta_client_implementation
+      type: LowCardinality(String)
+      description: Implementation of the client that generated the event
+    - name: meta_client_os
+      type: LowCardinality(String)
+      description: Operating system of the client that generated the event
+    - name: meta_client_ip
+      type: Nullable(IPv6)
+      description: IP address of the client that generated the event
+    - name: meta_client_geo_city
+      type: LowCardinality(String)
+      description: City of the client that generated the event
+    - name: meta_client_geo_country
+      type: LowCardinality(String)
+      description: Country of the client that generated the event
+    - name: meta_client_geo_country_code
+      type: LowCardinality(String)
+      description: Country code of the client that generated the event
+    - name: meta_client_geo_continent_code
+      type: LowCardinality(String)
+      description: Continent code of the client that generated the event
+    - name: meta_client_geo_longitude
+      type: Nullable(Float64)
+      description: Longitude of the client that generated the event
+    - name: meta_client_geo_latitude
+      type: Nullable(Float64)
+      description: Latitude of the client that generated the event
+    - name: meta_client_geo_autonomous_system_number
+      type: Nullable(UInt32)
+      description: Autonomous system number of the client that generated the event
+    - name: meta_client_geo_autonomous_system_organization
+      type: Nullable(String)
+      description: Autonomous system organization of the client that generated the event
+    - name: meta_network_id
+      type: Int32
+      description: Ethereum network ID
+    - name: meta_network_name
+      type: LowCardinality(String)
+      description: Ethereum network name
+    - name: meta_consensus_version
+      type: LowCardinality(String)
+      description: Ethereum consensus client version that generated the event
+    - name: meta_consensus_version_major
+      type: LowCardinality(String)
+      description: Ethereum consensus client major version that generated the event
+    - name: meta_consensus_version_minor
+      type: LowCardinality(String)
+      description: Ethereum consensus client minor version that generated the event
+    - name: meta_consensus_version_patch
+      type: LowCardinality(String)
+      description: Ethereum consensus client patch version that generated the event
+    - name: meta_consensus_implementation
+      type: LowCardinality(String)
+      description: Ethereum consensus client implementation that generated the event
+    - name: meta_labels
+      type: Map(String, String)
+      description: Labels associated with the event
+  - name: beacon_api_slot
+    meta:
+      networks: mainnet, goerli, sepolia
+    tags: ['sentry', 'consensus', 'beacon', 'API', 'slot']
+    description: >
+      Aggregated beacon API slot data. Each row represents a slot from each sentry client attached to a beacon node.
+    columns:
+    - name: slot
+      type: UInt32
+      description: "Slot number"
+    - name: slot_start_date_time
+      type: DateTime
+      description: "The wall clock time when the slot started"
+    - name: epoch
+      type: UInt32
+      description: "Epoch number"
+    - name: epoch_start_date_time
+      type: DateTime
+      description: "The wall clock time when the epoch started"
+    - name: meta_client_name
+      type: LowCardinality(String)
+      description: "Name of the client that generated the event"
+    - name: meta_network_name
+      type: LowCardinality(String)
+      description: "Ethereum network name"
+    - name: meta_client_geo_city
+      type: LowCardinality(String)
+      description: "City of the client that generated the event"
+    - name: meta_client_geo_continent_code
+      type: LowCardinality(String)
+      description: "Continent code of the client that generated the event"
+    - name: meta_client_geo_longitude
+      type: Nullable(Float64)
+      description: "Longitude of the client that generated the event"
+    - name: meta_client_geo_latitude
+      type: Nullable(Float64)
+      description: "Latitude of the client that generated the event"
+    - name: meta_consensus_implementation
+      type: LowCardinality(String)
+      description: "Ethereum consensus client implementation that generated the event"
+    - name: meta_consensus_version
+      type: LowCardinality(String)
+      description: "Ethereum consensus client version that generated the event"
+    - name: blocks
+      type: AggregateFunction(sum, UInt16)
+      description: "The number of beacon blocks seen in the slot"
+    - name: attestations
+      type: AggregateFunction(sum, UInt32)
+      description: "The number of attestations seen in the slot"
+  - name: mempool_transaction
+    meta:
+      networks: mainnet, goerli, sepolia
+    tags: ['sentry', 'mimicry', 'execution', 'mempool', 'transaction', 'tx']
+    description: >
+      Each row represents a transaction that was seen in the mempool by a sentry client. Sentries can report the same transaction multiple times if it has been long enough since the last report.
+    columns:
+    - name: event_date_time
+      type: DateTime64(3)
+      description: "The time when the sentry saw the transaction in the mempool"
+    - name: hash
+      type: FixedString(66)
+      description: "The hash of the transaction"
+    - name: from
+      type: FixedString(42)
+      description: "The address of the account that sent the transaction"
+    - name: to
+      type: FixedString(42)
+      description: "The address of the account that is the transaction recipient"
+    - name: nonce
+      type: UInt64
+      description: "The nonce of the sender account at the time of the transaction"
+    - name: gas_price
+      type: UInt128
+      description: "The gas price of the transaction in wei"
+    - name: gas
+      type: UInt64
+      description: "The maximum gas provided for the transaction execution"
+    - name: value
+      type: UInt128
+      description: "The value transferred with the transaction in wei"
+    - name: size
+      type: UInt32
+      description: "The size of the transaction data in bytes"
+    - name: call_data_size
+      type: UInt32
+      description: "The size of the call data of the transaction in bytes"
+    - name: meta_client_name
+      type: LowCardinality(String)
+      description: Name of the client that generated the event
+    - name: meta_client_id
+      type: String
+      description: Unique Session ID of the client that generated the event. This changes every time the client is restarted.
+    - name: meta_client_version
+      type: LowCardinality(String)
+      description: Version of the client that generated the event
+    - name: meta_client_implementation
+      type: LowCardinality(String)
+      description: Implementation of the client that generated the event
+    - name: meta_client_os
+      type: LowCardinality(String)
+      description: Operating system of the client that generated the event
+    - name: meta_client_ip
+      type: Nullable(IPv6)
+      description: IP address of the client that generated the event
+    - name: meta_client_geo_city
+      type: LowCardinality(String)
+      description: City of the client that generated the event
+    - name: meta_client_geo_country
+      type: LowCardinality(String)
+      description: Country of the client that generated the event
+    - name: meta_client_geo_country_code
+      type: LowCardinality(String)
+      description: Country code of the client that generated the event
+    - name: meta_client_geo_continent_code
+      type: LowCardinality(String)
+      description: Continent code of the client that generated the event
+    - name: meta_client_geo_longitude
+      type: Nullable(Float64)
+      description: Longitude of the client that generated the event
+    - name: meta_client_geo_latitude
+      type: Nullable(Float64)
+      description: Latitude of the client that generated the event
+    - name: meta_client_geo_autonomous_system_number
+      type: Nullable(UInt32)
+      description: Autonomous system number of the client that generated the event
+    - name: meta_client_geo_autonomous_system_organization
+      type: Nullable(String)
+      description: Autonomous system organization of the client that generated the event
+    - name: meta_network_id
+      type: Int32
+      description: Ethereum network ID
+    - name: meta_network_name
+      type: LowCardinality(String)
+      description: Ethereum network name
+    - name: meta_execution_fork_id_hash
+      type: LowCardinality(String)
+      description: "The hash of the fork ID of the current Ethereum network"
+    - name: meta_execution_fork_id_next
+      type: LowCardinality(String)
+      description: "The fork ID of the next planned Ethereum network upgrade"
+    - name: meta_labels
+      type: Map(String, String)
+      description: Labels associated with the event
+  - name: beacon_api_eth_v2_beacon_block
+    meta:
+      networks: mainnet, goerli, sepolia
+    tags: ['sentry', 'consensus', 'beacon', 'API', 'block']
+    description: >
+      Contains beacon API /eth/v2/beacon/blocks/{block_id} data from each sentry client attached to a beacon node.
+    columns:
+    - name: event_date_time
+      type: DateTime64(3)
+      description: "When the sentry fetched the beacon block from a beacon node"
+    - name: slot
+      type: UInt32
+      description: "The slot number from beacon block payload"
+    - name: slot_start_date_time
+      type: DateTime
+      description: "The wall clock time when the reorg slot started"
+    - name: epoch
+      type: UInt32
+      description: "The epoch number from beacon block payload"
+    - name: epoch_start_date_time
+      type: DateTime
+      description: "The wall clock time when the epoch started"
+    - name: block_root
+      type: FixedString(66)
+      description: "The root hash of the beacon block"
+    - name: parent_root
+      type: FixedString(66)
+      description: "The root hash of the parent beacon block"
+    - name: state_root
+      type: FixedString(66)
+      description: "The root hash of the beacon state at this block"
+    - name: proposer_index
+      type: UInt32
+      description: "The index of the validator that proposed the beacon block"
+    - name: eth1_data_block_hash
+      type: FixedString(66)
+      description: "The block hash of the associated execution block"
+    - name: eth1_data_deposit_root
+      type: FixedString(66)
+      description: "The root of the deposit tree in the associated execution block"
+    - name: execution_payload_block_hash
+      type: FixedString(66)
+      description: "The block hash of the execution payload"
+    - name: execution_payload_block_number
+      type: UInt32
+      description: "The block number of the execution payload"
+    - name: execution_payload_fee_recipient
+      type: String
+      description: "The recipient of the fee for this execution payload"
+    - name: execution_payload_state_root
+      type: FixedString(66)
+      description: "The state root of the execution payload"
+    - name: execution_payload_parent_hash
+      type: FixedString(66)
+      description: "The parent hash of the execution payload"
+    - name: meta_client_name
+      type: LowCardinality(String)
+      description: Name of the client that generated the event
+    - name: meta_client_id
+      type: String
+      description: Unique Session ID of the client that generated the event. This changes every time the client is restarted.
+    - name: meta_client_version
+      type: LowCardinality(String)
+      description: Version of the client that generated the event
+    - name: meta_client_implementation
+      type: LowCardinality(String)
+      description: Implementation of the client that generated the event
+    - name: meta_client_os
+      type: LowCardinality(String)
+      description: Operating system of the client that generated the event
+    - name: meta_client_ip
+      type: Nullable(IPv6)
+      description: IP address of the client that generated the event
+    - name: meta_client_geo_city
+      type: LowCardinality(String)
+      description: City of the client that generated the event
+    - name: meta_client_geo_country
+      type: LowCardinality(String)
+      description: Country of the client that generated the event
+    - name: meta_client_geo_country_code
+      type: LowCardinality(String)
+      description: Country code of the client that generated the event
+    - name: meta_client_geo_continent_code
+      type: LowCardinality(String)
+      description: Continent code of the client that generated the event
+    - name: meta_client_geo_longitude
+      type: Nullable(Float64)
+      description: Longitude of the client that generated the event
+    - name: meta_client_geo_latitude
+      type: Nullable(Float64)
+      description: Latitude of the client that generated the event
+    - name: meta_client_geo_autonomous_system_number
+      type: Nullable(UInt32)
+      description: Autonomous system number of the client that generated the event
+    - name: meta_client_geo_autonomous_system_organization
+      type: Nullable(String)
+      description: Autonomous system organization of the client that generated the event
+    - name: meta_network_id
+      type: Int32
+      description: Ethereum network ID
+    - name: meta_network_name
+      type: LowCardinality(String)
+      description: Ethereum network name
+    - name: meta_execution_fork_id_hash
+      type: LowCardinality(String)
+      description: "The hash of the fork ID of the current Ethereum network"
+    - name: meta_execution_fork_id_next
+      type: LowCardinality(String)
+      description: "The fork ID of the next planned Ethereum network upgrade"
+    - name: meta_labels
+      type: Map(String, String)
+      description: Labels associated with the event

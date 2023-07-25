@@ -1,11 +1,18 @@
 name: deploy
+
 on:
+  schedule:
+    - cron:  '45 * * * *'
   workflow_dispatch:
     branches:
       - master
   push:
     branches:
       - master
+
+concurrency:
+  group: "scheduled"
+  cancel-in-progress: true
 
 jobs:
   staging:

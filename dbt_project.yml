@@ -1,17 +1,9 @@
-
-# Name your project! Project names should contain only lowercase characters
-# and underscores. A good package name should reflect your organization's
-# name or the intended use of these models
-name: 'clickhouse'
+name: 'xatu'
 version: '1.0.0'
 config-version: 2
 
-# This setting configures which "profile" dbt uses for this project.
 profile: 'dbt'
 
-# These configurations specify where dbt should look for different types of files.
-# The `model-paths` config, for example, states that models in this project can be
-# found in the "models/" directory. You probably won't need to change these!
 model-paths: ["models"]
 analysis-paths: ["analyses"]
 test-paths: ["tests"]
@@ -19,10 +11,11 @@ seed-paths: ["seeds"]
 macro-paths: ["macros"]
 snapshot-paths: ["snapshots"]
 
-target-path: "target"  # directory which will store compiled SQL files
-clean-targets:         # directories to be removed by `dbt clean`
+target-path: "target"
+clean-targets:
   - "target"
   - "dbt_packages"
+  - "logs"
 
 # Configuring tests
 # Full documentation: https://docs.getdbt.com/reference/test-configs
@@ -37,10 +30,13 @@ clean-targets:         # directories to be removed by `dbt clean`
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
 models:
-  clickhouse:
-    test:
-      +materialized: view
+  xatu:
+    staging:
+      beacon_api:
+        +materialized: view
 
 vars:
   replicated_merge_tree_engine_template: >
     ReplicatedMergeTree('/clickhouse/{installation}/{cluster}/tables/{shard}/{database}/{table}/{uuid}', '{replica}')
+  replicated_replacing_merge_tree_engine_template: >
+    ReplicatedReplacingMergeTree('/clickhouse/{installation}/{cluster}/tables/{shard}/{database}/{table}/{uuid}', '{replica}')

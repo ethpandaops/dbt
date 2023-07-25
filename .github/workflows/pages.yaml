@@ -1,6 +1,10 @@
 name: deploy docs
 
-on: [push]
+on:
+  workflow_dispatch:
+    branches:
+      - master
+  push:
 
 jobs:
   staging:
@@ -21,6 +25,7 @@ jobs:
           DBT_HOST: ${{ secrets.PRODUCTION_HOST }}
           DBT_USER: ${{ secrets.PRODUCTION_USER }}
           DBT_PASSWORD: ${{ secrets.PRODUCTION_PASSWORD }}
+      - run: ./docs.sh
       - name: Publish
         uses: cloudflare/pages-action@1
         with:
@@ -49,6 +54,7 @@ jobs:
           DBT_HOST: ${{ secrets.PRODUCTION_HOST }}
           DBT_USER: ${{ secrets.PRODUCTION_USER }}
           DBT_PASSWORD: ${{ secrets.PRODUCTION_PASSWORD }}
+      - run: ./docs.sh
       - name: Publish
         uses: cloudflare/pages-action@1
         with:

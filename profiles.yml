@@ -13,3 +13,4 @@ dbt:
       secure: True
       user: "{{ env_var('DBT_USER') }}"
       password: "{{ env_var('DBT_PASSWORD') }}"
+      threads: 4

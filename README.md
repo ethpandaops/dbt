@@ -4,6 +4,13 @@
 
 Data Build Tool ([dbt](https://github.com/dbt-labs/dbt-core)) for the transformation layer of the [Xatu](https://docs.ethpandaops.io/xatu/intro) data pipeline.
 
+-----
+<p align="center" style="display: inline-block"> 
+  <a target=”_blank” href="https://dbt.platform.ethpandaops.io">View generated docs</a>
+</p>
+
+-----
+
 ## Prerequisites
 
 - [dbt](https://docs.getdbt.com/dbt-cli/installation)

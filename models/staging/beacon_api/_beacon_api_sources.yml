@@ -933,6 +933,12 @@ sources:
     - name: execution_payload_parent_hash
       type: FixedString(66)
       description: "The parent hash of the execution payload"
+    - name: execution_payload_transactions_count
+      type: Nullable(UInt32)
+      description: "The number of transactions in the execution payload"
+    - name: execution_payload_transactions_total_bytes
+      type: Nullable(UInt32)
+      description: "The total size in bytes of the transactions in the execution payload"
     - name: meta_client_name
       type: LowCardinality(String)
       description: Name of the client that generated the event

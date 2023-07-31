@@ -987,12 +987,21 @@ sources:
     - name: meta_network_name
       type: LowCardinality(String)
       description: Ethereum network name
-    - name: meta_execution_fork_id_hash
+    - name: meta_consensus_version
       type: LowCardinality(String)
-      description: "The hash of the fork ID of the current Ethereum network"
-    - name: meta_execution_fork_id_next
+      description: Ethereum consensus client version that generated the event
+    - name: meta_consensus_version_major
       type: LowCardinality(String)
-      description: "The fork ID of the next planned Ethereum network upgrade"
+      description: Ethereum consensus client major version that generated the event
+    - name: meta_consensus_version_minor
+      type: LowCardinality(String)
+      description: Ethereum consensus client minor version that generated the event
+    - name: meta_consensus_version_patch
+      type: LowCardinality(String)
+      description: Ethereum consensus client patch version that generated the event
+    - name: meta_consensus_implementation
+      type: LowCardinality(String)
+      description: Ethereum consensus client implementation that generated the event
     - name: meta_labels
       type: Map(String, String)
       description: Labels associated with the event

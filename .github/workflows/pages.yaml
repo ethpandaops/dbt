@@ -63,3 +63,17 @@ jobs:
           projectName: ethpandaops-platform-production-dbt
           directory: target
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
+  notify:
+    name: Discord Notification
+    runs-on: ubuntu-latest
+    needs:
+      - staging
+      - production
+    if: failure() || cancelled()
+    steps:
+      - name: Notify
+        uses: nobrayner/discord-webhook@v1
+        with:
+          github-token: ${{ secrets.github_token }}
+          discord-webhook: ${{ secrets.DISCORD_WEBHOOK }}

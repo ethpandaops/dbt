@@ -2,7 +2,7 @@
     materialized="incremental",
     incremental_strategy="append",
     engine=" ReplicatedReplacingMergeTree('/clickhouse/{installation}/{cluster}/tables/{shard}/{database}/{table}/{uuid}', '{replica}', updated_at)",
-    order_by="(slot_started_at)",
+    order_by="(unique_key)",
     unique_key="unique_key",
     sharding_key="unique_key",
     distributed=True,

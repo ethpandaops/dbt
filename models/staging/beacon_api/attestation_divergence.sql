@@ -2,7 +2,7 @@
     materialized="incremental",
     incremental_strategy="append",
     engine=" ReplicatedReplacingMergeTree('/clickhouse/{installation}/{cluster}/tables/{shard}/{database}/{table}/{uuid}', '{replica}', updated_at)",
-    order_by="(slot_started_at)",
+    order_by="(unique_key)",
     unique_key="unique_key",
     sharding_key="unique_key",
     distributed=True,
@@ -79,7 +79,7 @@ WITH attestation_divergence AS (
     )
 
     SELECT
-        cityHash64(M.slot, M.committee_index) AS unique_key, -- noqa: CP03
+        cityHash64(M.slot_start_date_time, M.slot, M.committee_index, M.meta_network_name) AS unique_key, -- noqa: CP03
         NOW() AS updated_at,
         M.slot_start_date_time as slot_started_at,
         M.slot as slot,

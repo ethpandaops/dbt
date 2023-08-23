@@ -23,3 +23,35 @@ models:
       description: network name, e.g. mainnet
     - name: total_witnesses
       description: total number of sentries that witnessed this block
+  - name: attestation_divergence
+    config:
+      tags: ['beacon', 'attestation']
+    description: >
+      Attestation divergence between sentry consensus client implementations
+    columns:
+    - name: unique_key
+      description: cityHash64 of the slot and committee index
+    - name: updated_at
+      description: when this record was last updated
+    - name: slot
+      description: slot number of the beacon block
+    - name: slot_started_at
+      description: when the slot started
+    - name: epoch
+      description: epoch number of the beacon block
+    - name: committee_index
+      description: committee index of the attestation data
+    - name: network
+      description: network name, e.g. mainnet
+    - name: all_equal
+      description: if all sentries agreed on the attestation data for this slot and committee index
+    - name: prysm_all_equal
+      description: if all prysm sentries agreed on the attestation data for this slot and committee index
+    - name: teku_all_equal
+      description: if all teku sentries agreed on the attestation data for this slot and committee index
+    - name: lodestar_all_equal
+      description: if all lodestar sentries agreed on the attestation data for this slot and committee index
+    - name: lighthouse_all_equal
+      description: if all lighthouse sentries agreed on the attestation data for this slot and committee index
+    - name: nimbus_all_equal
+      description: if all nimbus sentries agreed on the attestation data for this slot and committee index

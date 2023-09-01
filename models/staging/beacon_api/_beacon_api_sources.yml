@@ -903,6 +903,12 @@ sources:
     - name: block_root
       type: FixedString(66)
       description: "The root hash of the beacon block"
+    - name: block_total_bytes
+      type: Nullable(UInt32)
+      description: "The total size in bytes of the beacon block payload"
+    - name: block_total_bytes_compressed
+      type: Nullable(UInt32)
+      description: "The total size in bytes of the beacon block payload after snappy compression"
     - name: parent_root
       type: FixedString(66)
       description: "The root hash of the parent beacon block"
@@ -939,6 +945,9 @@ sources:
     - name: execution_payload_transactions_total_bytes
       type: Nullable(UInt32)
       description: "The total size in bytes of the transactions in the execution payload"
+    - name: execution_payload_transactions_total_bytes_compressed
+      type: Nullable(UInt32)
+      description: "The total size in bytes of the transactions in the execution payload after snappy compression"
     - name: meta_client_name
       type: LowCardinality(String)
       description: Name of the client that generated the event

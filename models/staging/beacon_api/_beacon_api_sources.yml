@@ -883,7 +883,7 @@ sources:
       networks: mainnet, holesky, goerli, sepolia
     tags: ['sentry', 'consensus', 'beacon', 'API', 'block']
     description: >
-      Contains beacon API /eth/v2/beacon/blocks/{block_id} data from each sentry client attached to a beacon node.
+      Contains beacon API /eth/v2/beacon/blocks/{block_id} data from each sentry client attached to a beacon node. This block might not be canonical.
     columns:
     - name: event_date_time
       type: DateTime64(3)
@@ -1017,7 +1017,7 @@ sources:
   - name: beacon_api_eth_v1_validator_attestation_data
     meta:
       networks: mainnet, holesky, goerli, sepolia
-    tags: ['sentry', 'consensus', 'beacon', 'API', 'attestation']
+    tags: ['sentry', 'consensus', 'beacon', 'API', 'attestation', 'canonical']
     description: >
       Contains beacon API /eth/v1/validator/attestation_data from each sentry client attached to a beacon node.
     columns:
@@ -1138,8 +1138,8 @@ sources:
   - name: beacon_api_eth_v2_beacon_block_proposer_slashing
     meta:
       networks: mainnet, holesky, goerli, sepolia
-    tags: ['sentry', 'consensus', 'beacon', 'API', 'proposer', 'slashing']
-    description: Contains proposer slashing from a beacon block.
+    tags: ['sentry', 'consensus', 'beacon', 'API', 'proposer', 'slashing', 'canonical']
+    description: Contains canonical proposer slashing from a beacon block.
     columns:
     - name: event_date_time
       type: DateTime64(3)
@@ -1267,8 +1267,8 @@ sources:
   - name: beacon_api_eth_v2_beacon_block_attester_slashing
     meta:
       networks: mainnet, holesky, goerli, sepolia
-    tags: ['sentry', 'consensus', 'beacon', 'API', 'attester', 'slashing']
-    description: Contains attester slashing from a beacon block.
+    tags: ['sentry', 'consensus', 'beacon', 'API', 'attester', 'slashing', 'canonical']
+    description: Contains canonical attester slashing from a beacon block.
     columns:
     - name: event_date_time
       type: DateTime64(3)
@@ -1414,8 +1414,8 @@ sources:
   - name: beacon_api_eth_v2_beacon_block_bls_to_execution_change
     meta:
       networks: mainnet, holesky, goerli, sepolia
-    tags: ['sentry', 'consensus', 'beacon', 'API', 'bls', 'execution', 'change']
-    description: Contains bls to execution change from a beacon block.
+    tags: ['sentry', 'consensus', 'beacon', 'API', 'bls', 'execution', 'change', 'canonical']
+    description: Contains canonical bls to execution change from a beacon block.
     columns:
     - name: event_date_time
       type: DateTime64(3)
@@ -1519,8 +1519,8 @@ sources:
   - name: beacon_api_eth_v2_beacon_block_execution_transaction
     meta:
       networks: mainnet, holesky, goerli, sepolia
-    tags: ['sentry', 'consensus', 'beacon', 'API', 'execution', 'transaction']
-    description: Contains execution transaction from a beacon block.
+    tags: ['sentry', 'consensus', 'beacon', 'API', 'execution', 'transaction', 'canonical']
+    description: Contains canonical execution transaction from a beacon block.
     columns:
     - name: event_date_time
       type: DateTime64(3)
@@ -1645,8 +1645,8 @@ sources:
   - name: beacon_api_eth_v2_beacon_block_voluntary_exit
     meta:
       networks: mainnet, holesky, goerli, sepolia
-    tags: ['sentry', 'consensus', 'beacon', 'API', 'voluntary', 'exit']
-    description: Contains voluntary exit from a beacon block.
+    tags: ['sentry', 'consensus', 'beacon', 'API', 'voluntary', 'exit', 'canonical']
+    description: Contains canonical voluntary exit from a beacon block.
     columns:
     - name: event_date_time
       type: DateTime64(3)
@@ -1747,8 +1747,8 @@ sources:
   - name: beacon_api_eth_v2_beacon_block_deposit
     meta:
       networks: mainnet, holesky, goerli, sepolia
-    tags: ['sentry', 'consensus', 'beacon', 'API', 'deposit']
-    description: Contains deposit from a beacon block.
+    tags: ['sentry', 'consensus', 'beacon', 'API', 'deposit', 'canonical']
+    description: Contains canonical deposit from a beacon block.
     columns:
     - name: event_date_time
       type: DateTime64(3)

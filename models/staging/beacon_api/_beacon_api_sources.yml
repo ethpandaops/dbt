@@ -801,7 +801,7 @@ sources:
       type: FixedString(42)
       description: "The address of the account that sent the transaction"
     - name: to
-      type: FixedString(42)
+      type: Nullable(FixedString(42))
       description: "The address of the account that is the transaction recipient"
     - name: nonce
       type: UInt64
@@ -815,6 +815,9 @@ sources:
     - name: value
       type: UInt128
       description: "The value transferred with the transaction in wei"
+    - name: type
+      type: Nullable(UInt8)
+      description: "The type of the transaction"
     - name: size
       type: UInt32
       description: "The size of the transaction data in bytes"
@@ -883,7 +886,7 @@ sources:
       networks: mainnet, holesky, goerli, sepolia
     tags: ['sentry', 'consensus', 'beacon', 'API', 'block']
     description: >
-      Contains beacon API /eth/v2/beacon/blocks/{block_id} data from each sentry client attached to a beacon node. This block might not be canonical.
+      Contains beacon API /eth/v2/beacon/blocks/{block_id} data from each sentry/cannon client attached to a beacon node. This block might not be canonical.
     columns:
     - name: event_date_time
       type: DateTime64(3)
@@ -903,6 +906,9 @@ sources:
     - name: block_root
       type: FixedString(66)
       description: "The root hash of the beacon block"
+    - name: block_version
+      type: LowCardinality(String)
+      description: "The version of the beacon block"
     - name: block_total_bytes
       type: Nullable(UInt32)
       description: "The total size in bytes of the beacon block payload"
@@ -1017,7 +1023,7 @@ sources:
   - name: beacon_api_eth_v1_validator_attestation_data
     meta:
       networks: mainnet, holesky, goerli, sepolia
-    tags: ['sentry', 'consensus', 'beacon', 'API', 'attestation', 'canonical']
+    tags: ['sentry', 'consensus', 'beacon', 'API', 'attestation']
     description: >
       Contains beacon API /eth/v1/validator/attestation_data from each sentry client attached to a beacon node.
     columns:
@@ -1135,10 +1141,10 @@ sources:
     - name: meta_labels
       type: Map(String, String)
       description: Labels associated with the event
-  - name: beacon_api_eth_v2_beacon_block_proposer_slashing
+  - name: canonical_beacon_block_proposer_slashing
     meta:
       networks: mainnet, holesky, goerli, sepolia
-    tags: ['sentry', 'consensus', 'beacon', 'API', 'proposer', 'slashing', 'canonical']
+    tags: ['cannon', 'consensus', 'beacon', 'API', 'proposer', 'slashing', 'block', 'canonical']
     description: Contains canonical proposer slashing from a beacon block.
     columns:
     - name: event_date_time
@@ -1264,10 +1270,10 @@ sources:
     - name: meta_labels
       type: Map(String, String)
       description: Labels associated with the event
-  - name: beacon_api_eth_v2_beacon_block_attester_slashing
+  - name: canonical_beacon_block_attester_slashing
     meta:
       networks: mainnet, holesky, goerli, sepolia
-    tags: ['sentry', 'consensus', 'beacon', 'API', 'attester', 'slashing', 'canonical']
+    tags: ['cannon', 'consensus', 'beacon', 'API', 'attester', 'slashing', 'block', 'canonical']
     description: Contains canonical attester slashing from a beacon block.
     columns:
     - name: event_date_time
@@ -1411,10 +1417,10 @@ sources:
     - name: meta_labels
       type: Map(String, String)
       description: Labels associated with the event
-  - name: beacon_api_eth_v2_beacon_block_bls_to_execution_change
+  - name: canonical_beacon_block_bls_to_execution_change
     meta:
       networks: mainnet, holesky, goerli, sepolia
-    tags: ['sentry', 'consensus', 'beacon', 'API', 'bls', 'execution', 'change', 'canonical']
+    tags: ['cannon', 'consensus', 'beacon', 'API', 'bls', 'execution', 'change', 'block', 'canonical']
     description: Contains canonical bls to execution change from a beacon block.
     columns:
     - name: event_date_time
@@ -1516,10 +1522,10 @@ sources:
     - name: meta_labels
       type: Map(String, String)
       description: Labels associated with the event
-  - name: beacon_api_eth_v2_beacon_block_execution_transaction
+  - name: canonical_beacon_block_execution_transaction
     meta:
       networks: mainnet, holesky, goerli, sepolia
-    tags: ['sentry', 'consensus', 'beacon', 'API', 'execution', 'transaction', 'canonical']
+    tags: ['cannon', 'consensus', 'beacon', 'API', 'execution', 'transaction', 'block', 'canonical']
     description: Contains canonical execution transaction from a beacon block.
     columns:
     - name: event_date_time
@@ -1642,10 +1648,10 @@ sources:
     - name: meta_labels
       type: Map(String, String)
       description: Labels associated with the event
-  - name: beacon_api_eth_v2_beacon_block_voluntary_exit
+  - name: canonical_beacon_block_voluntary_exit
     meta:
       networks: mainnet, holesky, goerli, sepolia
-    tags: ['sentry', 'consensus', 'beacon', 'API', 'voluntary', 'exit', 'canonical']
+    tags: ['cannon', 'consensus', 'beacon', 'API', 'voluntary', 'exit', 'block', 'canonical']
     description: Contains canonical voluntary exit from a beacon block.
     columns:
     - name: event_date_time
@@ -1744,10 +1750,10 @@ sources:
     - name: meta_labels
       type: Map(String, String)
       description: Labels associated with the event
-  - name: beacon_api_eth_v2_beacon_block_deposit
+  - name: canonical_beacon_block_deposit
     meta:
       networks: mainnet, holesky, goerli, sepolia
-    tags: ['sentry', 'consensus', 'beacon', 'API', 'deposit', 'canonical']
+    tags: ['cannon', 'consensus', 'beacon', 'API', 'deposit', 'block', 'canonical']
     description: Contains canonical deposit from a beacon block.
     columns:
     - name: event_date_time
@@ -1786,6 +1792,111 @@ sources:
     - name: deposit_data_signature
       type: String
       description: "The signature of the deposit in the beacon block"
+    - name: meta_client_name
+      type: LowCardinality(String)
+      description: Name of the client that generated the event
+    - name: meta_client_id
+      type: String
+      description: Unique Session ID of the client that generated the event. This changes every time the client is restarted.
+    - name: meta_client_version
+      type: LowCardinality(String)
+      description: Version of the client that generated the event
+    - name: meta_client_implementation
+      type: LowCardinality(String)
+      description: Implementation of the client that generated the event
+    - name: meta_client_os
+      type: LowCardinality(String)
+      description: Operating system of the client that generated the event
+    - name: meta_client_ip
+      type: Nullable(IPv6)
+      description: IP address of the client that generated the event
+    - name: meta_client_geo_city
+      type: LowCardinality(String)
+      description: City of the client that generated the event
+    - name: meta_client_geo_country
+      type: LowCardinality(String)
+      description: Country of the client that generated the event
+    - name: meta_client_geo_country_code
+      type: LowCardinality(String)
+      description: Country code of the client that generated the event
+    - name: meta_client_geo_continent_code
+      type: LowCardinality(String)
+      description: Continent code of the client that generated the event
+    - name: meta_client_geo_longitude
+      type: Nullable(Float64)
+      description: Longitude of the client that generated the event
+    - name: meta_client_geo_latitude
+      type: Nullable(Float64)
+      description: Latitude of the client that generated the event
+    - name: meta_client_geo_autonomous_system_number
+      type: Nullable(UInt32)
+      description: Autonomous system number of the client that generated the event
+    - name: meta_client_geo_autonomous_system_organization
+      type: Nullable(String)
+      description: Autonomous system organization of the client that generated the event
+    - name: meta_network_id
+      type: Int32
+      description: Ethereum network ID
+    - name: meta_network_name
+      type: LowCardinality(String)
+      description: Ethereum network name
+    - name: meta_consensus_version
+      type: LowCardinality(String)
+      description: Ethereum consensus client version that generated the event
+    - name: meta_consensus_version_major
+      type: LowCardinality(String)
+      description: Ethereum consensus client major version that generated the event
+    - name: meta_consensus_version_minor
+      type: LowCardinality(String)
+      description: Ethereum consensus client minor version that generated the event
+    - name: meta_consensus_version_patch
+      type: LowCardinality(String)
+      description: Ethereum consensus client patch version that generated the event
+    - name: meta_consensus_implementation
+      type: LowCardinality(String)
+      description: Ethereum consensus client implementation that generated the event
+    - name: meta_labels
+      type: Map(String, String)
+      description: Labels associated with the event
+  - name: canonical_beacon_block_withdrawal
+    meta:
+      networks: mainnet, holesky, goerli, sepolia
+    tags: ['cannon', 'consensus', 'beacon', 'API', 'withdrawal', 'block', 'canonical']
+    description: Contains canonical withdrawal from a beacon block.
+    columns:
+    - name: event_date_time
+      type: DateTime64(3)
+      description: "When the client processed the beacon block"
+    - name: slot
+      type: UInt32
+      description: "The slot number from beacon block payload"
+    - name: slot_start_date_time
+      type: DateTime
+      description: "The wall clock time when the reorg slot started"
+    - name: epoch
+      type: UInt32
+      description: "The epoch number from beacon block payload"
+    - name: epoch_start_date_time
+      type: DateTime
+      description: "The wall clock time when the epoch started"
+    - name: block_root
+      type: FixedString(66)
+      description: "The root hash of the beacon block"
+    - name: block_version
+      type: LowCardinality(String)
+      description: "The version of the beacon block"
+    - name: withdrawal_index
+      type: UInt32
+      description: "The index of the withdrawal"
+    - name: withdrawal_validator_index
+      type: UInt32
+      description: "The validator index from the withdrawal data"
+    - name: withdrawal_address
+      type: FixedString(42)
+      description: "The address of the account that is the withdrawal recipient"
+    - name: withdrawal_amount
+      type: UInt128
+      description: "The amount of the withdrawal from the withdrawal data"
     - name: meta_client_name
       type: LowCardinality(String)
       description: Name of the client that generated the event

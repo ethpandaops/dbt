@@ -1146,7 +1146,7 @@ sources:
       networks: mainnet, holesky, goerli, sepolia
     tags: ['cannon', 'consensus', 'beacon', 'API', 'block', 'canonical']
     description: >
-      Contains beacon API /eth/v2/beacon/blocks/{block_id} data from each sentry/cannon client attached to a beacon node. This block is canonical.
+      Contains beacon API /eth/v2/beacon/blocks/{block_id} data from each sentry/cannon client attached to a beacon node. This block is canonical. This table uses clickhouses replacing merge tree, so you must use the FINAL keyword when querying.
     columns:
     - name: updated_date_time
       type: DateTime
@@ -1287,7 +1287,7 @@ sources:
     meta:
       networks: mainnet, holesky, goerli, sepolia
     tags: ['cannon', 'consensus', 'beacon', 'API', 'proposer', 'slashing', 'block', 'canonical']
-    description: Contains canonical proposer slashing from a beacon block.
+    description: Contains canonical proposer slashing from a beacon block. This table uses clickhouses replacing merge tree, so you must use the FINAL keyword when querying.
     columns:
     - name: unique_key
       type: Int64
@@ -1422,7 +1422,7 @@ sources:
     meta:
       networks: mainnet, holesky, goerli, sepolia
     tags: ['cannon', 'consensus', 'beacon', 'API', 'attester', 'slashing', 'block', 'canonical']
-    description: Contains canonical attester slashing from a beacon block.
+    description: Contains canonical attester slashing from a beacon block. This table uses clickhouses replacing merge tree, so you must use the FINAL keyword when querying.
     columns:
     - name: unique_key
       type: Int64
@@ -1575,7 +1575,7 @@ sources:
     meta:
       networks: mainnet, holesky, goerli, sepolia
     tags: ['cannon', 'consensus', 'beacon', 'API', 'bls', 'execution', 'change', 'block', 'canonical']
-    description: Contains canonical bls to execution change from a beacon block.
+    description: Contains canonical bls to execution change from a beacon block. This table uses clickhouses replacing merge tree, so you must use the FINAL keyword when querying.
     columns:
     - name: unique_key
       type: Int64
@@ -1686,7 +1686,7 @@ sources:
     meta:
       networks: mainnet, holesky, goerli, sepolia
     tags: ['cannon', 'consensus', 'beacon', 'API', 'execution', 'transaction', 'block', 'canonical']
-    description: Contains canonical execution transaction from a beacon block.
+    description: Contains canonical execution transaction from a beacon block. This table uses clickhouses replacing merge tree, so you must use the FINAL keyword when querying.
     columns:
     - name: unique_key
       type: Int64
@@ -1818,7 +1818,7 @@ sources:
     meta:
       networks: mainnet, holesky, goerli, sepolia
     tags: ['cannon', 'consensus', 'beacon', 'API', 'voluntary', 'exit', 'block', 'canonical']
-    description: Contains canonical voluntary exit from a beacon block.
+    description: Contains canonical voluntary exit from a beacon block. This table uses clickhouses replacing merge tree, so you must use the FINAL keyword when querying.
     columns:
     - name: unique_key
       type: Int64
@@ -1926,7 +1926,7 @@ sources:
     meta:
       networks: mainnet, holesky, goerli, sepolia
     tags: ['cannon', 'consensus', 'beacon', 'API', 'deposit', 'block', 'canonical']
-    description: Contains canonical deposit from a beacon block.
+    description: Contains canonical deposit from a beacon block. This table uses clickhouses replacing merge tree, so you must use the FINAL keyword when querying.
     columns:
     - name: unique_key
       type: Int64
@@ -2040,7 +2040,7 @@ sources:
     meta:
       networks: mainnet, holesky, goerli, sepolia
     tags: ['cannon', 'consensus', 'beacon', 'API', 'withdrawal', 'block', 'canonical']
-    description: Contains canonical withdrawal from a beacon block.
+    description: Contains canonical withdrawal from a beacon block. This table uses clickhouses replacing merge tree, so you must use the FINAL keyword when querying.
     columns:
     - name: unique_key
       type: Int64

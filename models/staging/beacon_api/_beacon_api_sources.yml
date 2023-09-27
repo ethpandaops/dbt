@@ -1141,12 +1141,160 @@ sources:
     - name: meta_labels
       type: Map(String, String)
       description: Labels associated with the event
+  - name: canonical_beacon_block
+    meta:
+      networks: mainnet, holesky, goerli, sepolia
+    tags: ['cannon', 'consensus', 'beacon', 'API', 'block', 'canonical']
+    description: >
+      Contains beacon API /eth/v2/beacon/blocks/{block_id} data from each sentry/cannon client attached to a beacon node. This block is canonical.
+    columns:
+    - name: updated_date_time
+      type: DateTime
+      description: "When this row was last updated"
+    - name: event_date_time
+      type: DateTime64(3)
+      description: "When the sentry fetched the beacon block from a beacon node"
+    - name: slot
+      type: UInt32
+      description: "The slot number from beacon block payload"
+    - name: slot_start_date_time
+      type: DateTime
+      description: "The wall clock time when the reorg slot started"
+    - name: epoch
+      type: UInt32
+      description: "The epoch number from beacon block payload"
+    - name: epoch_start_date_time
+      type: DateTime
+      description: "The wall clock time when the epoch started"
+    - name: block_root
+      type: FixedString(66)
+      description: "The root hash of the beacon block"
+    - name: block_version
+      type: LowCardinality(String)
+      description: "The version of the beacon block"
+    - name: block_total_bytes
+      type: Nullable(UInt32)
+      description: "The total size in bytes of the beacon block payload"
+    - name: block_total_bytes_compressed
+      type: Nullable(UInt32)
+      description: "The total size in bytes of the beacon block payload after snappy compression"
+    - name: parent_root
+      type: FixedString(66)
+      description: "The root hash of the parent beacon block"
+    - name: state_root
+      type: FixedString(66)
+      description: "The root hash of the beacon state at this block"
+    - name: proposer_index
+      type: UInt32
+      description: "The index of the validator that proposed the beacon block"
+    - name: eth1_data_block_hash
+      type: FixedString(66)
+      description: "The block hash of the associated execution block"
+    - name: eth1_data_deposit_root
+      type: FixedString(66)
+      description: "The root of the deposit tree in the associated execution block"
+    - name: execution_payload_block_hash
+      type: FixedString(66)
+      description: "The block hash of the execution payload"
+    - name: execution_payload_block_number
+      type: UInt32
+      description: "The block number of the execution payload"
+    - name: execution_payload_fee_recipient
+      type: String
+      description: "The recipient of the fee for this execution payload"
+    - name: execution_payload_state_root
+      type: FixedString(66)
+      description: "The state root of the execution payload"
+    - name: execution_payload_parent_hash
+      type: FixedString(66)
+      description: "The parent hash of the execution payload"
+    - name: execution_payload_transactions_count
+      type: Nullable(UInt32)
+      description: "The number of transactions in the execution payload"
+    - name: execution_payload_transactions_total_bytes
+      type: Nullable(UInt32)
+      description: "The total size in bytes of the transactions in the execution payload"
+    - name: execution_payload_transactions_total_bytes_compressed
+      type: Nullable(UInt32)
+      description: "The total size in bytes of the transactions in the execution payload after snappy compression"
+    - name: meta_client_name
+      type: LowCardinality(String)
+      description: Name of the client that generated the event
+    - name: meta_client_id
+      type: String
+      description: Unique Session ID of the client that generated the event. This changes every time the client is restarted.
+    - name: meta_client_version
+      type: LowCardinality(String)
+      description: Version of the client that generated the event
+    - name: meta_client_implementation
+      type: LowCardinality(String)
+      description: Implementation of the client that generated the event
+    - name: meta_client_os
+      type: LowCardinality(String)
+      description: Operating system of the client that generated the event
+    - name: meta_client_ip
+      type: Nullable(IPv6)
+      description: IP address of the client that generated the event
+    - name: meta_client_geo_city
+      type: LowCardinality(String)
+      description: City of the client that generated the event
+    - name: meta_client_geo_country
+      type: LowCardinality(String)
+      description: Country of the client that generated the event
+    - name: meta_client_geo_country_code
+      type: LowCardinality(String)
+      description: Country code of the client that generated the event
+    - name: meta_client_geo_continent_code
+      type: LowCardinality(String)
+      description: Continent code of the client that generated the event
+    - name: meta_client_geo_longitude
+      type: Nullable(Float64)
+      description: Longitude of the client that generated the event
+    - name: meta_client_geo_latitude
+      type: Nullable(Float64)
+      description: Latitude of the client that generated the event
+    - name: meta_client_geo_autonomous_system_number
+      type: Nullable(UInt32)
+      description: Autonomous system number of the client that generated the event
+    - name: meta_client_geo_autonomous_system_organization
+      type: Nullable(String)
+      description: Autonomous system organization of the client that generated the event
+    - name: meta_network_id
+      type: Int32
+      description: Ethereum network ID
+    - name: meta_network_name
+      type: LowCardinality(String)
+      description: Ethereum network name
+    - name: meta_consensus_version
+      type: LowCardinality(String)
+      description: Ethereum consensus client version that generated the event
+    - name: meta_consensus_version_major
+      type: LowCardinality(String)
+      description: Ethereum consensus client major version that generated the event
+    - name: meta_consensus_version_minor
+      type: LowCardinality(String)
+      description: Ethereum consensus client minor version that generated the event
+    - name: meta_consensus_version_patch
+      type: LowCardinality(String)
+      description: Ethereum consensus client patch version that generated the event
+    - name: meta_consensus_implementation
+      type: LowCardinality(String)
+      description: Ethereum consensus client implementation that generated the event
+    - name: meta_labels
+      type: Map(String, String)
+      description: Labels associated with the event
   - name: canonical_beacon_block_proposer_slashing
     meta:
       networks: mainnet, holesky, goerli, sepolia
     tags: ['cannon', 'consensus', 'beacon', 'API', 'proposer', 'slashing', 'block', 'canonical']
     description: Contains canonical proposer slashing from a beacon block.
     columns:
+    - name: unique_key
+      type: Int64
+      description: "Unique key for the row"
+    - name: updated_date_time
+      type: DateTime
+      description: "When this row was last updated"
     - name: event_date_time
       type: DateTime64(3)
       description: "When the client processed the beacon block"
@@ -1276,6 +1424,12 @@ sources:
     tags: ['cannon', 'consensus', 'beacon', 'API', 'attester', 'slashing', 'block', 'canonical']
     description: Contains canonical attester slashing from a beacon block.
     columns:
+    - name: unique_key
+      type: Int64
+      description: "Unique key for the row"
+    - name: updated_date_time
+      type: DateTime
+      description: "When this row was last updated"
     - name: event_date_time
       type: DateTime64(3)
       description: "When the client processed the beacon block"
@@ -1423,6 +1577,12 @@ sources:
     tags: ['cannon', 'consensus', 'beacon', 'API', 'bls', 'execution', 'change', 'block', 'canonical']
     description: Contains canonical bls to execution change from a beacon block.
     columns:
+    - name: unique_key
+      type: Int64
+      description: "Unique key for the row"
+    - name: updated_date_time
+      type: DateTime
+      description: "When this row was last updated"
     - name: event_date_time
       type: DateTime64(3)
       description: "When the client processed the beacon block"
@@ -1528,6 +1688,12 @@ sources:
     tags: ['cannon', 'consensus', 'beacon', 'API', 'execution', 'transaction', 'block', 'canonical']
     description: Contains canonical execution transaction from a beacon block.
     columns:
+    - name: unique_key
+      type: Int64
+      description: "Unique key for the row"
+    - name: updated_date_time
+      type: DateTime
+      description: "When this row was last updated"
     - name: event_date_time
       type: DateTime64(3)
       description: "When the client processed the beacon block"
@@ -1654,6 +1820,12 @@ sources:
     tags: ['cannon', 'consensus', 'beacon', 'API', 'voluntary', 'exit', 'block', 'canonical']
     description: Contains canonical voluntary exit from a beacon block.
     columns:
+    - name: unique_key
+      type: Int64
+      description: "Unique key for the row"
+    - name: updated_date_time
+      type: DateTime
+      description: "When this row was last updated"
     - name: event_date_time
       type: DateTime64(3)
       description: "When the client processed the beacon block"
@@ -1756,6 +1928,12 @@ sources:
     tags: ['cannon', 'consensus', 'beacon', 'API', 'deposit', 'block', 'canonical']
     description: Contains canonical deposit from a beacon block.
     columns:
+    - name: unique_key
+      type: Int64
+      description: "Unique key for the row"
+    - name: updated_date_time
+      type: DateTime
+      description: "When this row was last updated"
     - name: event_date_time
       type: DateTime64(3)
       description: "When the client processed the beacon block"
@@ -1864,6 +2042,12 @@ sources:
     tags: ['cannon', 'consensus', 'beacon', 'API', 'withdrawal', 'block', 'canonical']
     description: Contains canonical withdrawal from a beacon block.
     columns:
+    - name: unique_key
+      type: Int64
+      description: "Unique key for the row"
+    - name: updated_date_time
+      type: DateTime
+      description: "When this row was last updated"
     - name: event_date_time
       type: DateTime64(3)
       description: "When the client processed the beacon block"

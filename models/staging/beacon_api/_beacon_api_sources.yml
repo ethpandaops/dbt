@@ -2279,7 +2279,7 @@ sources:
       description: "The best guess of the client that generated the beacon block"
     - name: best_guess_multi
       type: LowCardinality(String)
-      description: "The best guess of the clients that generated the beacon block. This value will typically equal the best_guess_single value, but when multiple clients have high probabilities, this value will have multiple eg. "prysm or lighthouse""
+      description: The best guess of the clients that generated the beacon block. This value will typically equal the best_guess_single value, but when multiple clients have high probabilities, this value will have multiple eg. "prysm or lighthouse"
     - name: client_probability_uncertain
       type: Float32
       description: "The probability that the client that generated the beacon block is uncertain"

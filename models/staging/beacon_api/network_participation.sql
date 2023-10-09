@@ -8,7 +8,16 @@
     distributed=True,
 ) }}
 
-WITH attesting AS (
+WITH min_slot_time AS (
+    {% if is_incremental() %}
+        SELECT MAX(slot_started_at) - INTERVAL '1 MINUTE'  AS start_time
+        FROM {{ this }}
+    {% else %}
+        SELECT toDate('2023-09-14') AS start_time
+    {% endif %}
+),
+
+attesting AS (
     SELECT
         slot,
         slot_start_date_time,
@@ -16,12 +25,12 @@ WITH attesting AS (
         COUNT(DISTINCT attesting_validator_index) AS attesting_validators
     FROM
         {{ source('clickhouse', 'beacon_api_eth_v1_events_attestation') }}
-    {% if is_incremental() %}
-        WHERE slot_start_date_time >= (
-            SELECT MAX(slot_started_at) - INTERVAL '15 MINUTE'
-            FROM {{ this }}
+    WHERE
+        slot_start_date_time BETWEEN (
+            SELECT start_time FROM min_slot_time
+        ) AND (
+            SELECT start_time + INTERVAL '1 DAY' FROM min_slot_time
         )
-    {% endif %}
     GROUP BY slot, slot_start_date_time, meta_network_name
 ),
 
@@ -30,23 +39,24 @@ total AS (
         slot,
         slot_start_date_time,
         meta_network_name,
-        SUM(LENGTH(validators)) AS total_validators
+        SUM(total_validators_committee) AS total_validators
     FROM (
         SELECT
             slot,
             slot_start_date_time,
             meta_network_name,
             committee_index,
-            validators
+            MAX(LENGTH(validators)) AS total_validators_committee
         FROM
             {{ source('clickhouse', 'beacon_api_eth_v1_beacon_committee') }}
-        {% if is_incremental() %}
-            WHERE slot_start_date_time >= (
-                SELECT MAX(slot_started_at) - INTERVAL '15 MINUTE'
-                FROM {{ this }}
+        WHERE
+            slot_start_date_time BETWEEN (
+                SELECT start_time FROM min_slot_time
+            ) AND (
+                SELECT start_time + INTERVAL '1 DAY' FROM min_slot_time
             )
-        {% endif %}
-        LIMIT 1
+            AND meta_network_name = 'mainnet'
+        GROUP BY slot, slot_start_date_time, meta_network_name, committee_index
     )
     GROUP BY slot, slot_start_date_time, meta_network_name
 ),
@@ -75,10 +85,3 @@ participation AS (
 
 SELECT *
 FROM participation
-
-{% if is_incremental() %}
-    WHERE slot_started_at >= (
-        SELECT MAX(slot_started_at) - INTERVAL '15 MINUTE'
-        FROM {{ this }}
-    )
-{% endif %}

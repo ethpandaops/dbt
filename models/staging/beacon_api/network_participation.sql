@@ -14,7 +14,8 @@ WITH Attesting AS (
         slot_start_date_time,
         meta_network_name,
         COUNT(DISTINCT attesting_validator_index) AS attesting_validators
-    FROM default.beacon_api_eth_v1_events_attestation
+    FROM
+        { source('clickhouse', 'beacon_api_eth_v1_events_attestation') }}
     {% if is_incremental() %}
         WHERE slot_start_date_time >= (
             SELECT MAX(slot_started_at) - INTERVAL '15 MINUTE'
@@ -36,7 +37,8 @@ Total AS (
             meta_network_name,
             committee_index,
             validators
-        FROM default.beacon_api_eth_v1_beacon_committee
+        FROM
+            { source('clickhouse', 'beacon_api_eth_v1_beacon_committee') }}
         {% if is_incremental() %}
             WHERE slot_start_date_time >= (
                 SELECT MAX(slot_started_at) - INTERVAL '15 MINUTE'

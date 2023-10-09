@@ -55,3 +55,25 @@ models:
       description: if all lighthouse sentries agreed on the attestation data for this slot and committee index
     - name: nimbus_all_equal
       description: if all nimbus sentries agreed on the attestation data for this slot and committee index
+  - name: network_participation
+    config:
+      tags: ['beacon', 'attestation']
+    description: >
+      Participation rates of validators for given slots in beacon attestations.
+    columns:
+    - name: unique_key
+      description: xxHash32 of the slot number concatenated with the network name.
+    - name: updated_at
+      description: when this record was last updated.
+    - name: slot
+      description: slot number associated with the attestation data.
+    - name: slot_started_at
+      description: timestamp when the slot started.
+    - name: network
+      description: network name, e.g. mainnet.
+    - name: attesting_validators
+      description: number of unique validators that attested for a given slot.
+    - name: total_validators
+      description: total number of validators scheduled to attest for a given slot.
+    - name: participation_rate
+      description: ratio of `attesting_validators` to `total_validators`, indicating the participation rate.

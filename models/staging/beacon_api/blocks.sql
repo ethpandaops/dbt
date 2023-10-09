@@ -10,12 +10,12 @@
 
 WITH blocks AS (
     SELECT
-        xxHash32(block) AS unique_key, -- noqa: CP03
-        NOW() AS updated_at,
-        block AS beacon_block_root_hash,
         slot,
         epoch,
+        block AS beacon_block_root_hash,
         meta_network_name AS network,
+        xxHash32(block) AS unique_key, -- noqa: CP03
+        NOW() AS updated_at,
         MIN(slot_start_date_time) AS slot_started_at,
         COUNT(*) AS total_witnesses
     FROM

@@ -13,7 +13,8 @@ WITH min_slot_time AS (
         SELECT MAX(slot_started_at) - INTERVAL '1 MINUTE'  AS start_time
         FROM {{ this }}
     {% else %}
-        SELECT toDate('2023-09-14') AS start_time
+        SELECT MIN(slot_start_date_time) AS start_time
+        FROM {{ source('clickhouse', 'beacon_api_eth_v1_beacon_committee') }}
     {% endif %}
 ),
 
@@ -55,7 +56,6 @@ total AS (
             ) AND (
                 SELECT start_time + INTERVAL '1 DAY' FROM min_slot_time
             )
-            AND meta_network_name = 'mainnet'
         GROUP BY slot, slot_start_date_time, meta_network_name, committee_index
     )
     GROUP BY slot, slot_start_date_time, meta_network_name

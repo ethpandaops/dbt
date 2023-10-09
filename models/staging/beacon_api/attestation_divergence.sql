@@ -8,54 +8,49 @@
     distributed=True,
 ) }}
 
-WITH window_boundaries AS (
-    SELECT
-        {% if is_incremental() %}
-            (SELECT MAX(slot_started_at) - INTERVAL '1 MINUTE' FROM {{ this }})
-        {% else %}
-            (SELECT MIN(slot_start_date_time) FROM {{ source('clickhouse', 'beacon_api_eth_v1_validator_attestation_data') }})
-        {% endif %}
-            AS start_time,
-        {% if is_incremental() %}
-            (SELECT MAX(slot_started_at) + INTERVAL '3 DAY' FROM {{ this }})
-        {% else %}
-            (SELECT MIN(slot_start_date_time) + INTERVAL '3 DAY' FROM {{ source('clickhouse', 'beacon_api_eth_v1_validator_attestation_data') }})
-        {% endif %}
-            AS end_time
+WITH min_slot_time AS (
+    {% if is_incremental() %}
+        SELECT MAX(slot_started_at) - INTERVAL '1 MINUTE'  AS start_time
+        FROM {{ this }}
+    {% else %}
+        SELECT MIN(slot_start_date_time) AS start_time
+        FROM {{ source('clickhouse', 'beacon_api_eth_v1_validator_attestation_data') }}
+    {% endif %}
 ),
 
 attestation_divergence AS (
     WITH aggregated AS (
         SELECT
-            a.slot_start_date_time,
-            a.slot,
-            a.epoch,
-            a.committee_index,
-            a.meta_network_name,
-            a.meta_consensus_implementation,
+            slot_start_date_time,
+            slot,
+            epoch,
+            committee_index,
+            meta_network_name,
+            meta_consensus_implementation,
             cityHash64( -- noqa: CP03
-                a.beacon_block_root,
-                a.source_epoch,
-                a.source_root,
-                a.target_epoch,
-                a.target_root
+                beacon_block_root,
+                source_epoch,
+                source_root,
+                target_epoch,
+                target_root
             ) AS hash,
             COUNT() AS cnt
         FROM
-            {{
-                source('clickhouse', 'beacon_api_eth_v1_validator_attestation_data')
-            }} AS a GLOBAL INNER JOIN window_boundaries AS b ON 1 = 1
+            {{ source('clickhouse', 'beacon_api_eth_v1_validator_attestation_data') }}
         WHERE
-            a.slot_start_date_time >= b.start_time
-            AND a.slot_start_date_time <= b.end_time
+            slot_start_date_time BETWEEN (
+                SELECT start_time FROM min_slot_time
+            ) AND (
+                SELECT start_time + INTERVAL '1 DAY' FROM min_slot_time
+            )
         GROUP BY
-            a.slot_start_date_time,
-            a.slot,
-            a.epoch,
-            a.committee_index,
-            a.meta_network_name,
+            slot_start_date_time,
+            slot,
+            epoch,
+            committee_index,
+            meta_network_name,
             hash,
-            a.meta_consensus_implementation
+            meta_consensus_implementation
     ),
 
     maxhash AS (

@@ -44,7 +44,7 @@ attestation_divergence AS (
         FROM
             {{
                 source('clickhouse', 'beacon_api_eth_v1_validator_attestation_data')
-            }} AS a INNER JOIN window_boundaries AS b ON 1 = 1
+            }} AS a GLOBAL INNER JOIN window_boundaries AS b ON 1 = 1
         WHERE
             a.slot_start_date_time >= b.start_time
             AND a.slot_start_date_time <= b.end_time

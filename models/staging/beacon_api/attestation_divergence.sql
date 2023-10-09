@@ -8,41 +8,54 @@
     distributed=True,
 ) }}
 
-WITH attestation_divergence AS (
+WITH window_boundaries AS (
+    SELECT
+        {% if is_incremental() %}
+            (SELECT MAX(slot_started_at) - INTERVAL '1 MINUTE' FROM {{ this }})
+        {% else %}
+            (SELECT MIN(slot_start_date_time) FROM {{ source('clickhouse', 'beacon_api_eth_v1_validator_attestation_data') }})
+        {% endif %}
+            AS start_time,
+        {% if is_incremental() %}
+            (SELECT MAX(slot_started_at) + INTERVAL '3 DAY' FROM {{ this }})
+        {% else %}
+            (SELECT MIN(slot_start_date_time) + INTERVAL '3 DAY' FROM {{ source('clickhouse', 'beacon_api_eth_v1_validator_attestation_data') }})
+        {% endif %}
+            AS end_time
+),
+
+attestation_divergence AS (
     WITH aggregated AS (
         SELECT
-            slot_start_date_time,
-            slot,
-            epoch,
-            committee_index,
-            meta_network_name,
-            meta_consensus_implementation,
+            a.slot_start_date_time,
+            a.slot,
+            a.epoch,
+            a.committee_index,
+            a.meta_network_name,
+            a.meta_consensus_implementation,
             cityHash64( -- noqa: CP03
-                beacon_block_root,
-                source_epoch,
-                source_root,
-                target_epoch,
-                target_root
+                a.beacon_block_root,
+                a.source_epoch,
+                a.source_root,
+                a.target_epoch,
+                a.target_root
             ) AS hash,
             COUNT() AS cnt
         FROM
             {{
                 source('clickhouse', 'beacon_api_eth_v1_validator_attestation_data')
-            }}
-        {% if is_incremental() %}
-            WHERE slot_start_date_time >= (
-                SELECT MAX(slot_started_at) - INTERVAL '1 MINUTE'
-                FROM {{ this }}
-            )
-        {% endif %}
+            }} AS a INNER JOIN window_boundaries AS b ON 1 = 1
+        WHERE
+            a.slot_start_date_time >= b.start_time
+            AND a.slot_start_date_time <= b.end_time
         GROUP BY
-            slot_start_date_time,
-            slot,
-            epoch,
-            committee_index,
-            meta_network_name,
+            a.slot_start_date_time,
+            a.slot,
+            a.epoch,
+            a.committee_index,
+            a.meta_network_name,
             hash,
-            meta_consensus_implementation
+            a.meta_consensus_implementation
     ),
 
     maxhash AS (
@@ -223,12 +236,3 @@ WITH attestation_divergence AS (
 
 SELECT *
 FROM attestation_divergence
-
-{% if is_incremental() %}
-
-    WHERE slot_started_at >= (
-        SELECT MAX(slot_started_at) - INTERVAL '1 MINUTE'
-        FROM {{ this }}
-    )
-
-{% endif %}

@@ -2370,3 +2370,96 @@ sources:
     - name: meta_labels
       type: Map(String, String)
       description: Labels associated with the event
+  - name: beacon_api_eth_v1_beacon_committee
+    meta:
+      networks: mainnet, holesky, goerli, sepolia
+    tags: ['sentry', 'consensus', 'beacon', 'API', 'committee', 'attestation']
+    description: Contains beacon committees from the beacon API.
+    columns:
+    - name: event_date_time
+      type: DateTime64(3)
+      description: "When the client fetched the beacon committee"
+    - name: slot
+      type: UInt32
+      description: "The slot number from beacon committee"
+    - name: slot_start_date_time
+      type: DateTime
+      description: "The wall clock time when the slot started"
+    - name: epoch
+      type: UInt32
+      description: "The epoch number from beacon committee"
+    - name: epoch_start_date_time
+      type: DateTime
+      description: "The wall clock time when the epoch started"
+    - name: committee_index
+      type: LowCardinality(String)
+      description: "The committee index in the beacon API"
+    - name: validators
+      type: Array(UInt32)
+      description: "The index of all the validators in the committee"
+    - name: meta_client_name
+      type: LowCardinality(String)
+      description: Name of the client that generated the event
+    - name: meta_client_id
+      type: String
+      description: Unique Session ID of the client that generated the event. This changes every time the client is restarted.
+    - name: meta_client_version
+      type: LowCardinality(String)
+      description: Version of the client that generated the event
+    - name: meta_client_implementation
+      type: LowCardinality(String)
+      description: Implementation of the client that generated the event
+    - name: meta_client_os
+      type: LowCardinality(String)
+      description: Operating system of the client that generated the event
+    - name: meta_client_ip
+      type: Nullable(IPv6)
+      description: IP address of the client that generated the event
+    - name: meta_client_geo_city
+      type: LowCardinality(String)
+      description: City of the client that generated the event
+    - name: meta_client_geo_country
+      type: LowCardinality(String)
+      description: Country of the client that generated the event
+    - name: meta_client_geo_country_code
+      type: LowCardinality(String)
+      description: Country code of the client that generated the event
+    - name: meta_client_geo_continent_code
+      type: LowCardinality(String)
+      description: Continent code of the client that generated the event
+    - name: meta_client_geo_longitude
+      type: Nullable(Float64)
+      description: Longitude of the client that generated the event
+    - name: meta_client_geo_latitude
+      type: Nullable(Float64)
+      description: Latitude of the client that generated the event
+    - name: meta_client_geo_autonomous_system_number
+      type: Nullable(UInt32)
+      description: Autonomous system number of the client that generated the event
+    - name: meta_client_geo_autonomous_system_organization
+      type: Nullable(String)
+      description: Autonomous system organization of the client that generated the event
+    - name: meta_network_id
+      type: Int32
+      description: Ethereum network ID
+    - name: meta_network_name
+      type: LowCardinality(String)
+      description: Ethereum network name
+    - name: meta_consensus_version
+      type: LowCardinality(String)
+      description: Ethereum consensus client version that generated the event
+    - name: meta_consensus_version_major
+      type: LowCardinality(String)
+      description: Ethereum consensus client major version that generated the event
+    - name: meta_consensus_version_minor
+      type: LowCardinality(String)
+      description: Ethereum consensus client minor version that generated the event
+    - name: meta_consensus_version_patch
+      type: LowCardinality(String)
+      description: Ethereum consensus client patch version that generated the event
+    - name: meta_consensus_implementation
+      type: LowCardinality(String)
+      description: Ethereum consensus client implementation that generated the event
+    - name: meta_labels
+      type: Map(String, String)
+      description: Labels associated with the event

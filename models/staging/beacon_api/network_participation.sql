@@ -8,7 +8,7 @@
     distributed=True,
 ) }}
 
-WITH Attesting AS (
+WITH attesting AS (
     SELECT
         slot,
         slot_start_date_time,
@@ -24,12 +24,13 @@ WITH Attesting AS (
     {% endif %}
     GROUP BY slot, slot_start_date_time, meta_network_name
 ),
-Total AS (
-    SELECT 
+
+total AS (
+    SELECT
         slot,
         slot_start_date_time,
         meta_network_name,
-        sum(length(validators)) AS total_validators
+        SUM(LENGTH(validators)) AS total_validators
     FROM (
         SELECT
             slot,
@@ -45,27 +46,35 @@ Total AS (
                 FROM {{ this }}
             )
         {% endif %}
-        LIMIT 1 BY slot_start_date_time, committee_index
+        LIMIT 1
     )
     GROUP BY slot, slot_start_date_time, meta_network_name
 ),
-Participation AS (
-    SELECT
 
-        Attesting.slot as slot,
-        Attesting.slot_start_date_time as slot_started_at,
-        Attesting.meta_network_name as network,
-        attesting_validators,
-        total_validators,
-        attesting_validators * 1.0 / total_validators AS participation_rate,
-        xxHash32(CAST(slot AS String) || network) AS unique_key,
+participation AS (
+    SELECT
+        attesting.slot AS slot,
+        attesting.slot_start_date_time AS slot_started_at,
+        attesting.meta_network_name AS network,
+        attesting.attesting_validators,
+        total.total_validators,
+        attesting.attesting_validators * 1.0
+        / total.total_validators AS participation_rate,
+        xxHash32( -- noqa: CP03
+            CAST(attesting.slot AS String) || attesting.meta_network_name
+        ) AS unique_key,
         NOW() AS updated_at
-    FROM Attesting
-    JOIN Total ON Attesting.slot_start_date_time = Total.slot_start_date_time AND Attesting.meta_network_name = Total.meta_network_name AND Attesting.slot = Total.slot
+    FROM attesting
+    INNER JOIN
+        total
+        ON
+            attesting.slot_start_date_time = total.slot_start_date_time
+            AND attesting.meta_network_name = total.meta_network_name
+            AND attesting.slot = total.slot
 )
 
-SELECT * 
-FROM Participation
+SELECT *
+FROM participation
 
 {% if is_incremental() %}
     WHERE slot_started_at >= (

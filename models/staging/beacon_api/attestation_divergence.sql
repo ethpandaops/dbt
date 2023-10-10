@@ -10,7 +10,7 @@
 
 WITH min_slot_time AS (
     {% if is_incremental() %}
-        SELECT MAX(slot_started_at) - INTERVAL '1 MINUTE'  AS start_time
+        SELECT MAX(slot_started_at) - INTERVAL '1 MINUTE' AS start_time
         FROM {{ this }}
     {% else %}
         SELECT MIN(slot_start_date_time) AS start_time
@@ -36,7 +36,9 @@ attestation_divergence AS (
             ) AS hash,
             COUNT() AS cnt
         FROM
-            {{ source('clickhouse', 'beacon_api_eth_v1_validator_attestation_data') }}
+            {{
+                source('clickhouse', 'beacon_api_eth_v1_validator_attestation_data')
+            }}
         WHERE
             slot_start_date_time BETWEEN (
                 SELECT start_time FROM min_slot_time

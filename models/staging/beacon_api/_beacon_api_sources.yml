@@ -2463,3 +2463,117 @@ sources:
     - name: meta_labels
       type: Map(String, String)
       description: Labels associated with the event
+  - name: canonical_beacon_blob_sidecar
+    meta:
+      networks: mainnet, holesky, goerli, sepolia
+    tags: ['cannon', 'consensus', 'beacon', 'API', 'blob', 'sidecar', 'canonical']
+    description: Contains a blob sidecar from a beacon block. This table uses clickhouses replacing merge tree, so you must use the FINAL keyword when querying.
+    columns:
+    - name: unique_key
+      type: Int64
+      description: "Unique key for the row"
+    - name: updated_date_time
+      type: DateTime
+      description: "When this row was last updated"
+    - name: event_date_time
+      type: DateTime64(3)
+      description: "When the client processed the beacon block"
+    - name: slot
+      type: UInt32
+      description: "The slot number from beacon block payload"
+    - name: slot_start_date_time
+      type: DateTime
+      description: "The wall clock time when the reorg slot started"
+    - name: epoch
+      type: UInt32
+      description: "The epoch number from beacon block payload"
+    - name: epoch_start_date_time
+      type: DateTime
+      description: "The wall clock time when the epoch started"
+    - name: block_root
+      type: FixedString(66)
+      description: "The root hash of the beacon block"
+    - name: versioned_hash
+      type: FixedString(66)
+      description: "The versioned hash in the beacon API event stream payload"
+    - name: kzg_commitment
+      type: FixedString(98)
+      description: "The KZG commitment in the blob sidecar payload"
+    - name: kzg_proof
+      type: FixedString(98)
+      description: "The KZG proof in the blob sidecar payload"
+    - name: proposer_index
+      type: UInt32
+      description: "The index of the validator that proposed the beacon block"
+    - name: blob_index
+      type: UInt64
+      description: "The index of blob sidecar in the blob sidecar payload"
+    - name: blob_size
+      type: UInt32
+      description: "The total bytes of the blob"
+    - name: meta_client_name
+      type: LowCardinality(String)
+      description: Name of the client that generated the event
+    - name: meta_client_id
+      type: String
+      description: Unique Session ID of the client that generated the event. This changes every time the client is restarted.
+    - name: meta_client_version
+      type: LowCardinality(String)
+      description: Version of the client that generated the event
+    - name: meta_client_implementation
+      type: LowCardinality(String)
+      description: Implementation of the client that generated the event
+    - name: meta_client_os
+      type: LowCardinality(String)
+      description: Operating system of the client that generated the event
+    - name: meta_client_ip
+      type: Nullable(IPv6)
+      description: IP address of the client that generated the event
+    - name: meta_client_geo_city
+      type: LowCardinality(String)
+      description: City of the client that generated the event
+    - name: meta_client_geo_country
+      type: LowCardinality(String)
+      description: Country of the client that generated the event
+    - name: meta_client_geo_country_code
+      type: LowCardinality(String)
+      description: Country code of the client that generated the event
+    - name: meta_client_geo_continent_code
+      type: LowCardinality(String)
+      description: Continent code of the client that generated the event
+    - name: meta_client_geo_longitude
+      type: Nullable(Float64)
+      description: Longitude of the client that generated the event
+    - name: meta_client_geo_latitude
+      type: Nullable(Float64)
+      description: Latitude of the client that generated the event
+    - name: meta_client_geo_autonomous_system_number
+      type: Nullable(UInt32)
+      description: Autonomous system number of the client that generated the event
+    - name: meta_client_geo_autonomous_system_organization
+      type: Nullable(String)
+      description: Autonomous system organization of the client that generated the event
+    - name: meta_network_id
+      type: Int32
+      description: Ethereum network ID
+    - name: meta_network_name
+      type: LowCardinality(String)
+      description: Ethereum network name
+    - name: meta_consensus_version
+      type: LowCardinality(String)
+      description: Ethereum consensus client version that generated the event
+    - name: meta_consensus_version_major
+      type: LowCardinality(String)
+      description: Ethereum consensus client major version that generated the event
+    - name: meta_consensus_version_minor
+      type: LowCardinality(String)
+      description: Ethereum consensus client minor version that generated the event
+    - name: meta_consensus_version_patch
+      type: LowCardinality(String)
+      description: Ethereum consensus client patch version that generated the event
+    - name: meta_consensus_implementation
+      type: LowCardinality(String)
+      description: Ethereum consensus client implementation that generated the event
+    - name: meta_labels
+      type: Map(String, String)
+      description: Labels associated with the event

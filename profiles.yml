@@ -9,7 +9,7 @@ dbt:
       cluster_mode: True
       local_suffix: '_local'
       host: "{{ env_var('DBT_HOST') }}"
-      port: 443
+      port: "{{ env_var('DBT_PORT') }}"
       secure: True
       user: "{{ env_var('DBT_USER') }}"
       password: "{{ env_var('DBT_PASSWORD') }}"

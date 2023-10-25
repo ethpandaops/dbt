@@ -16,5 +16,6 @@ jobs:
       - run: sqlfluff lint .
         env:
           DBT_HOST: ${{ secrets.STAGING_HOST }}
+          DBT_PORT: ${{ secrets.STAGING_PORT }}
           DBT_USER: ${{ secrets.STAGING_USER }}
           DBT_PASSWORD: ${{ secrets.STAGING_PASSWORD }}

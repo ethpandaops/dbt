@@ -23,6 +23,7 @@ jobs:
       - run: dbt docs generate
         env:
           DBT_HOST: ${{ secrets.PRODUCTION_HOST }}
+          DBT_PORT: ${{ secrets.PRODUCTION_PORT }}
           DBT_USER: ${{ secrets.PRODUCTION_USER }}
           DBT_PASSWORD: ${{ secrets.PRODUCTION_PASSWORD }}
       - run: ./docs.sh
@@ -52,6 +53,7 @@ jobs:
       - run: dbt docs generate
         env:
           DBT_HOST: ${{ secrets.PRODUCTION_HOST }}
+          DBT_PORT: ${{ secrets.PRODUCTION_PORT }}
           DBT_USER: ${{ secrets.PRODUCTION_USER }}
           DBT_PASSWORD: ${{ secrets.PRODUCTION_PASSWORD }}
       - run: ./docs.sh

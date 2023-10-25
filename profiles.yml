@@ -8,9 +8,9 @@ dbt:
       cluster: '{cluster}'
       cluster_mode: True
       local_suffix: '_local'
-      host: "{{ env_var('DBT_HOST') }}"
-      port: "{{ env_var('DBT_PORT') }}"
-      secure: True
-      user: "{{ env_var('DBT_USER') }}"
-      password: "{{ env_var('DBT_PASSWORD') }}"
+      host: "{{ env_var('DBT_HOST', 'localhost') }}"
+      port: "{{ env_var('DBT_PORT', '8123') | int }}"
+      secure: "{{ (env_var('DBT_SECURE', 'False') | lower) == 'true' }}"
+      user: "{{ env_var('DBT_USER', 'default') }}"
+      password: "{{ env_var('DBT_PASSWORD', '') }}"
       threads: 4

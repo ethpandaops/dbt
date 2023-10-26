@@ -31,7 +31,7 @@ attesting_validators AS (
         slot_start_date_time BETWEEN (
             SELECT start_time FROM min_slot_time
         ) AND (
-            SELECT start_time + INTERVAL '1 HOUR' FROM min_slot_time
+            SELECT start_time + INTERVAL '4 HOUR' FROM min_slot_time
         )
     GROUP BY
         slot, slot_start_date_time, meta_network_name, attesting_validator_index

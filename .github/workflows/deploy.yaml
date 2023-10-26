@@ -31,6 +31,7 @@ jobs:
           DBT_PORT: ${{ secrets.STAGING_PORT }}
           DBT_USER: ${{ secrets.STAGING_USER }}
           DBT_PASSWORD: ${{ secrets.STAGING_PASSWORD }}
+          DBT_SECURE: ${{ secrets.STAGING_SECURE }}
 
   production:
     name: Deploy to Production
@@ -46,9 +47,10 @@ jobs:
       - run: dbt --debug run
         env:
           DBT_HOST: ${{ secrets.PRODUCTION_HOST }}
-          DBT_PORT: ${{ secrets.STAGING_PORT }}
+          DBT_PORT: ${{ secrets.PRODUCTION_PORT }}
           DBT_USER: ${{ secrets.PRODUCTION_USER }}
           DBT_PASSWORD: ${{ secrets.PRODUCTION_PASSWORD }}
+          DBT_SECURE: ${{ secrets.PRODUCTION_SECURE }}
 
   notify:
     name: Discord Notification

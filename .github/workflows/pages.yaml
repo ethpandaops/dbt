@@ -26,6 +26,7 @@ jobs:
           DBT_PORT: ${{ secrets.PRODUCTION_PORT }}
           DBT_USER: ${{ secrets.PRODUCTION_USER }}
           DBT_PASSWORD: ${{ secrets.PRODUCTION_PASSWORD }}
+          DBT_SECURE: ${{ secrets.PRODUCTION_SECURE }}
       - run: ./docs.sh
       - name: Publish
         uses: cloudflare/pages-action@1
@@ -56,6 +57,7 @@ jobs:
           DBT_PORT: ${{ secrets.PRODUCTION_PORT }}
           DBT_USER: ${{ secrets.PRODUCTION_USER }}
           DBT_PASSWORD: ${{ secrets.PRODUCTION_PASSWORD }}
+          DBT_SECURE: ${{ secrets.PRODUCTION_SECURE }}
       - run: ./docs.sh
       - name: Publish
         uses: cloudflare/pages-action@1

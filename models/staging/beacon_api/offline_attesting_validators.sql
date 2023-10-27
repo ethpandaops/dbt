@@ -16,93 +16,103 @@
 --  - only front fill 4 hours at a time to not overload the db
 --  - look back 30 minutes to replace data if needed
 WITH min_max_slot_time AS (
-    SELECT
-        -- start_time
-        CASE
-            WHEN
-                -- check if this model actually exists
-                NOT EXISTS (
-                    SELECT 1
-                    FROM system.tables
-                    WHERE database = 'dbt' AND name = '{{ this.name }}'
-                )
-                -- check if this model is empty
-                OR (
-                    SELECT MAX(slot_started_at)
-                    FROM {{ this }}
-                    WHERE network = 'mainnet'
-                ) IS NULL
-                -- fall back to the source beginning
-                THEN MIN(slot_start_date_time)
-            ELSE
-                -- select the latest slot time minus 30 minutes
-                (
-                    SELECT MAX(slot_started_at) - INTERVAL 30 MINUTE
-                    FROM {{ this }}
-                    WHERE network = 'mainnet'
-                )
-        END AS start_time,
-        -- end_time
-        CASE
-            WHEN
-                -- check if this model actually exists
-                NOT EXISTS (
-                    SELECT 1
-                    FROM system.tables
-                    WHERE database = 'dbt' AND name = '{{ this.name }}'
-                )
-                -- check if this model is empty
-                OR (
-                    SELECT MAX(slot_started_at)
-                    FROM {{ this }}
-                    WHERE network = 'mainnet'
-                ) IS NULL
-                -- fall back to the source ending with 12 seconds buffer
-                THEN
-                    CASE
-                        WHEN
-                            -- make sure never to go past NOW() - 12 seconds
-                            MAX(slot_start_date_time)
-                            < NOW() - INTERVAL 12 SECOND
-                            THEN MAX(slot_start_date_time)
-                        ELSE NOW() - INTERVAL 12 SECOND
-                    END
-            WHEN
-                -- check model latest slot time plus 4 hours is
-                -- less than the source latest slot time
-                (
-                    SELECT MAX(slot_started_at) + INTERVAL 4 HOUR
-                    FROM {{ this }}
-                    WHERE network = 'mainnet'
-                )
-                <= MAX(slot_start_date_time)
-                -- check if the model latest slot time plus 4 hours
-                -- is less than NOW() - 12 seconds
-                AND (
-                    SELECT MAX(slot_started_at) + INTERVAL 4 HOUR
-                    FROM {{ this }}
-                    WHERE network = 'mainnet'
-                )
-                < NOW() - INTERVAL 12 SECOND
-                -- this model is still front filling
-                THEN
+    {% if is_incremental() %}
+        SELECT
+            -- start_time
+            CASE
+                WHEN
+                    -- check if this model is empty
+                    (
+                        SELECT MAX(slot_started_at)
+                        FROM {{ this }}
+                        WHERE network = 'mainnet'
+                    ) IS NULL
+                    -- fall back to the source beginning
+                    THEN MIN(slot_start_date_time)
+                ELSE
+                    -- select the latest slot time minus 30 minutes
+                    (
+                        SELECT MAX(slot_started_at) - INTERVAL 30 MINUTE
+                        FROM {{ this }}
+                        WHERE network = 'mainnet'
+                    )
+            END AS start_time,
+            -- end_time
+            CASE
+                WHEN
+                    -- check if this model is empty
+                    (
+                        SELECT MAX(slot_started_at)
+                        FROM {{ this }}
+                        WHERE network = 'mainnet'
+                    ) IS NULL
+                    -- fall back to the source ending with 1 minute buffer
+                    THEN
+                        CASE
+                            WHEN
+                                -- make sure never to go past NOW() - 12s
+                                MAX(slot_start_date_time)
+                                < NOW() - INTERVAL 12 SECOND
+                                THEN MAX(slot_start_date_time)
+                            ELSE NOW() - INTERVAL 12 SECOND
+                        END
+                WHEN
+                    -- check model latest slot time plus 4 hours is
+                    -- less than the source latest slot time
                     (
                         SELECT MAX(slot_started_at) + INTERVAL 4 HOUR
                         FROM {{ this }}
                         WHERE network = 'mainnet'
                     )
-            -- check if the model latest slot time is less than NOW() - 12 seconds
-            WHEN MAX(slot_start_date_time) < NOW() - INTERVAL 12 SECOND
-                -- fill to the latest source slot time
+                    <= MAX(slot_start_date_time)
+                    -- check if the model latest slot time plus 4 hours
+                    -- is less than NOW() - 12s
+                    AND (
+                        SELECT MAX(slot_started_at) + INTERVAL 4 HOUR
+                        FROM {{ this }}
+                        WHERE network = 'mainnet'
+                    )
+                    < NOW() - INTERVAL 12 SECOND
+                    -- this model is still front filling
+                    THEN
+                        (
+                            SELECT MAX(slot_started_at) + INTERVAL 4 HOUR
+                            FROM {{ this }}
+                            WHERE network = 'mainnet'
+                        )
+                -- check if the model latest slot time is less than NOW() - 12s
+                WHEN MAX(slot_start_date_time) < NOW() - INTERVAL 12 SECOND
+                    -- fill to the latest source slot time
+                    THEN MAX(slot_start_date_time)
+                -- otherwise fill to NOW() - 12s
+                ELSE NOW() - INTERVAL 12 SECOND
+            END AS end_time
+        FROM
+            {{ source('clickhouse', 'beacon_api_eth_v1_beacon_committee') }}
+        WHERE
+            slot_start_date_time >= NOW() - INTERVAL '2 DAY'
+            AND meta_network_name = 'mainnet'
+    {% else %}
+        SELECT
+            -- start_time
+            MIN(slot_start_date_time) AS start_time,
+            -- end_time
+            CASE
+                -- check if front filling
+                WHEN MIN(slot_start_date_time) + INTERVAL 4 HOUR <= MAX(slot_start_date_time) AND MIN(slot_start_date_time) + INTERVAL 4 HOUR < NOW() - INTERVAL 12 SECOND
+                THEN MIN(slot_start_date_time) + INTERVAL 4 HOUR
+                -- check if source is less than NOW() - 12s
+                WHEN MAX(slot_start_date_time) < NOW() - INTERVAL 12 SECOND
                 THEN MAX(slot_start_date_time)
-            -- otherwise fill to NOW() - 12 seconds
-            ELSE NOW() - INTERVAL 12 SECOND
-        END AS end_time
-    FROM
-        {{ source('clickhouse', 'beacon_api_eth_v1_beacon_committee') }}
-    WHERE
-        slot_start_date_time >= NOW() - INTERVAL '2 DAY'
-        AND meta_network_name = 'mainnet'
+                -- otherwise fill to NOW() - 12s
+                ELSE NOW() - INTERVAL 12 SECOND
+            END AS end_time
+        FROM
+            {{ source('clickhouse', 'beacon_api_eth_v1_beacon_committee') }}
+        WHERE
+            slot_start_date_time >= NOW() - INTERVAL '2 DAY'
+            AND meta_network_name = 'mainnet'
+    {% endif %}
 ),
 
 expected_validators AS (

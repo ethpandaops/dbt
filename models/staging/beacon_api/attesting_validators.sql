@@ -100,6 +100,7 @@ WITH min_max_slot_time AS (
             END AS end_time
         FROM
             {{ source('clickhouse', 'beacon_api_eth_v1_events_attestation') }}
+        WHERE attesting_validator_index IS NOT NULL
     {% endif %}
 ),
 

@@ -10,7 +10,7 @@
 
 WITH min_slot_time AS (
     {% if is_incremental() %}
-        SELECT MAX(slot_started_at) - INTERVAL '1 MINUTE' AS start_time
+        SELECT MAX(slot_started_at) - INTERVAL '15 MINUTE' AS start_time
         FROM {{ this }}
     {% else %}
         SELECT MIN(slot_start_date_time) AS start_time
@@ -82,7 +82,7 @@ nearest_blockprint AS (
     LEFT JOIN
         {{
             source('clickhouse', 'beacon_block_classification')
-        }} AS b ON (
+        }} AS b FINAL ON (
         b.proposer_index = av.validator_index
         AND b.meta_network_name = av.meta_network_name
     )

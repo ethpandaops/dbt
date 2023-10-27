@@ -89,9 +89,6 @@ WITH min_max_slot_time AS (
             END AS end_time
         FROM
             {{ source('clickhouse', 'beacon_api_eth_v1_beacon_committee') }}
-        WHERE
-            slot_start_date_time >= NOW() - INTERVAL '2 DAY'
-            AND meta_network_name = 'mainnet'
     {% else %}
         SELECT
             -- start_time
@@ -109,9 +106,6 @@ WITH min_max_slot_time AS (
             END AS end_time
         FROM
             {{ source('clickhouse', 'beacon_api_eth_v1_beacon_committee') }}
-        WHERE
-            slot_start_date_time >= NOW() - INTERVAL '2 DAY'
-            AND meta_network_name = 'mainnet'
     {% endif %}
 ),
 

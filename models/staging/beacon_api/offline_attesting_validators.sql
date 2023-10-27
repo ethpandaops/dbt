@@ -8,14 +8,33 @@
     distributed=True,
 ) }}
 
-WITH min_slot_time AS (
-    {% if is_incremental() %}
-        SELECT MAX(slot_started_at) - INTERVAL '15 MINUTE' AS start_time
-        FROM {{ this }}
-    {% else %}
-        SELECT MIN(slot_start_date_time) AS start_time
-        FROM {{ source('clickhouse', 'beacon_api_eth_v1_beacon_committee') }}
-    {% endif %}
+WITH min_max_slot_time AS (
+    SELECT
+        CASE
+            WHEN NOT EXISTS (SELECT 1 FROM system.tables WHERE database = 'dbt' AND name = '{{ this.name }}')
+            OR (SELECT MAX(slot_started_at) FROM {{ this }} WHERE network = 'mainnet') IS NULL
+            THEN MIN(slot_start_date_time)
+            ELSE (SELECT MAX(slot_started_at) - INTERVAL 30 MINUTE FROM {{ this }} WHERE network = 'mainnet')
+        END AS start_time,
+        CASE
+            WHEN NOT EXISTS (SELECT 1 FROM system.tables WHERE database = 'dbt' AND name = '{{ this.name }}')
+            OR (SELECT MAX(slot_started_at) FROM {{ this }} WHERE network = 'mainnet') IS NULL
+            THEN
+                CASE
+                    WHEN MAX(slot_start_date_time) < NOW() - INTERVAL 1 MINUTE
+                    THEN MAX(slot_start_date_time)
+                    ELSE NOW() - INTERVAL 1 MINUTE
+                END
+            WHEN (SELECT MAX(slot_started_at) + INTERVAL 4 HOUR FROM {{ this }} WHERE network = 'mainnet') <= MAX(slot_start_date_time) AND (SELECT MAX(slot_started_at) + INTERVAL 4 HOUR FROM {{ this }} WHERE network = 'mainnet') < NOW() - INTERVAL 1 MINUTE
+            THEN (SELECT MAX(slot_started_at) + INTERVAL 4 HOUR FROM {{ this }} WHERE network = 'mainnet')
+            WHEN MAX(slot_start_date_time) < NOW() - INTERVAL 1 MINUTE
+            THEN MAX(slot_start_date_time)
+            ELSE NOW() - INTERVAL 1 MINUTE
+        END AS end_time
+    FROM
+        {{ source('clickhouse', 'beacon_api_eth_v1_beacon_committee') }}
+    WHERE
+        meta_network_name = 'mainnet'
 ),
 
 expected_validators AS (
@@ -28,9 +47,9 @@ expected_validators AS (
         {{ source('clickhouse', 'beacon_api_eth_v1_beacon_committee') }}
     WHERE
         slot_start_date_time BETWEEN (
-            SELECT start_time FROM min_slot_time
+            SELECT start_time FROM min_max_slot_time
         ) AND (
-            SELECT start_time + INTERVAL '4 HOUR' FROM min_slot_time
+            SELECT end_time FROM min_max_slot_time
         )
 ),
 
@@ -44,9 +63,9 @@ attested_validators AS (
         {{ source('clickhouse', 'beacon_api_eth_v1_events_attestation') }}
     WHERE
         slot_start_date_time BETWEEN (
-            SELECT start_time FROM min_slot_time
+            SELECT start_time FROM min_max_slot_time
         ) AND (
-            SELECT start_time + INTERVAL '4 HOUR' FROM min_slot_time
+            SELECT end_time FROM min_max_slot_time
         )
     GROUP BY
         slot, slot_start_date_time, meta_network_name, attesting_validator_index

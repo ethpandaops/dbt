@@ -8,27 +8,95 @@
     distributed=True,
 ) }}
 
+
+-- this calculates what time window to populate.
+-- depending on what data is available we need to make choices;
+--  - does this model exist? if not, populate from the source
+--  - if the this model empty? if so, populate from the source
+--  - this model uses multiple sources so need 1 minute buffer from now()
+--  - only front fill 4 hours at a time to not overload the db
+--  - look back 30 minutes to replace data if needed
 WITH min_max_slot_time AS (
     SELECT
+        -- start_time
         CASE
-            WHEN NOT EXISTS (SELECT 1 FROM system.tables WHERE database = 'dbt' AND name = '{{ this.name }}')
-            OR (SELECT MAX(slot_started_at) FROM {{ this }} WHERE network = 'mainnet') IS NULL
-            THEN MIN(slot_start_date_time)
-            ELSE (SELECT MAX(slot_started_at) - INTERVAL 30 MINUTE FROM {{ this }} WHERE network = 'mainnet')
+            WHEN
+                -- check if this model actually exists
+                NOT EXISTS (
+                    SELECT 1
+                    FROM system.tables
+                    WHERE database = 'dbt' AND name = '{{ this.name }}'
+                )
+                -- check if this model is empty
+                OR (
+                    SELECT MAX(slot_started_at)
+                    FROM {{ this }}
+                    WHERE network = 'mainnet'
+                ) IS NULL
+                -- fall back to the source beginning
+                THEN MIN(slot_start_date_time)
+            ELSE
+                -- select the latest slot time minus 30 minutes
+                (
+                    SELECT MAX(slot_started_at) - INTERVAL 30 MINUTE
+                    FROM {{ this }}
+                    WHERE network = 'mainnet'
+                )
         END AS start_time,
+        -- end_time
         CASE
-            WHEN NOT EXISTS (SELECT 1 FROM system.tables WHERE database = 'dbt' AND name = '{{ this.name }}')
-            OR (SELECT MAX(slot_started_at) FROM {{ this }} WHERE network = 'mainnet') IS NULL
-            THEN
-                CASE
-                    WHEN MAX(slot_start_date_time) < NOW() - INTERVAL 1 MINUTE
-                    THEN MAX(slot_start_date_time)
-                    ELSE NOW() - INTERVAL 1 MINUTE
-                END
-            WHEN (SELECT MAX(slot_started_at) + INTERVAL 4 HOUR FROM {{ this }} WHERE network = 'mainnet') <= MAX(slot_start_date_time) AND (SELECT MAX(slot_started_at) + INTERVAL 4 HOUR FROM {{ this }} WHERE network = 'mainnet') < NOW() - INTERVAL 1 MINUTE
-            THEN (SELECT MAX(slot_started_at) + INTERVAL 4 HOUR FROM {{ this }} WHERE network = 'mainnet')
+            WHEN
+                -- check if this model actually exists
+                NOT EXISTS (
+                    SELECT 1
+                    FROM system.tables
+                    WHERE database = 'dbt' AND name = '{{ this.name }}'
+                )
+                -- check if this model is empty
+                OR (
+                    SELECT MAX(slot_started_at)
+                    FROM {{ this }}
+                    WHERE network = 'mainnet'
+                ) IS NULL
+                -- fall back to the source ending with 1 minute buffer
+                THEN
+                    CASE
+                        WHEN
+                            -- make sure never to go past NOW() - 1 minute
+                            MAX(slot_start_date_time)
+                            < NOW() - INTERVAL 1 MINUTE
+                            THEN MAX(slot_start_date_time)
+                        ELSE NOW() - INTERVAL 1 MINUTE
+                    END
+            WHEN
+                -- check model latest slot time plus 4 hours is
+                -- less than the source latest slot time
+                (
+                    SELECT MAX(slot_started_at) + INTERVAL 4 HOUR
+                    FROM {{ this }}
+                    WHERE network = 'mainnet'
+                )
+                <= MAX(slot_start_date_time)
+                -- check if the model latest slot time plus 4 hours
+                -- is less than NOW() - 1 minute
+                AND (
+                    SELECT MAX(slot_started_at) + INTERVAL 4 HOUR
+                    FROM {{ this }}
+                    WHERE network = 'mainnet'
+                )
+                < NOW() - INTERVAL 1 MINUTE
+                -- this model is still front filling
+                THEN
+                    (
+                        SELECT MAX(slot_started_at) + INTERVAL 4 HOUR
+                        FROM {{ this }}
+                        WHERE network = 'mainnet'
+                    )
+            -- check if the model latest slot time is less than NOW() - 1 minute
             WHEN MAX(slot_start_date_time) < NOW() - INTERVAL 1 MINUTE
-            THEN MAX(slot_start_date_time)
+                -- fill to the latest source slot time
+                THEN MAX(slot_start_date_time)
+            -- otherwise fill to NOW() - 1 minute
             ELSE NOW() - INTERVAL 1 MINUTE
         END AS end_time
     FROM

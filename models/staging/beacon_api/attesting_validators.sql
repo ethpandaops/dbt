@@ -61,11 +61,11 @@ WITH min_max_slot_time AS (
                 THEN
                     CASE
                         WHEN
-                            -- make sure never to go past NOW() - 1 minute
+                            -- make sure never to go past NOW() - 12 seconds
                             MAX(slot_start_date_time)
-                            < NOW() - INTERVAL 1 MINUTE
+                            < NOW() - INTERVAL 12 SECOND
                             THEN MAX(slot_start_date_time)
-                        ELSE NOW() - INTERVAL 1 MINUTE
+                        ELSE NOW() - INTERVAL 12 SECOND
                     END
             WHEN
                 -- check model latest slot time plus 4 hours is
@@ -77,13 +77,13 @@ WITH min_max_slot_time AS (
                 )
                 <= MAX(slot_start_date_time)
                 -- check if the model latest slot time plus 4 hours
-                -- is less than NOW() - 1 minute
+                -- is less than NOW() - 12 seconds
                 AND (
                     SELECT MAX(slot_started_at) + INTERVAL 4 HOUR
                     FROM {{ this }}
                     WHERE network = 'mainnet'
                 )
-                < NOW() - INTERVAL 1 MINUTE
+                < NOW() - INTERVAL 12 SECOND
                 -- this model is still front filling
                 THEN
                     (
@@ -91,12 +91,12 @@ WITH min_max_slot_time AS (
                         FROM {{ this }}
                         WHERE network = 'mainnet'
                     )
-            -- check if the model latest slot time is less than NOW() - 1 minute
-            WHEN MAX(slot_start_date_time) < NOW() - INTERVAL 1 MINUTE
+            -- check if the model latest slot time is less than NOW() - 12 seconds
+            WHEN MAX(slot_start_date_time) < NOW() - INTERVAL 12 SECOND
                 -- fill to the latest source slot time
                 THEN MAX(slot_start_date_time)
-            -- otherwise fill to NOW() - 1 minute
-            ELSE NOW() - INTERVAL 1 MINUTE
+            -- otherwise fill to NOW() - 12 seconds
+            ELSE NOW() - INTERVAL 12 SECOND
         END AS end_time
     FROM
         {{ source('clickhouse', 'beacon_api_eth_v1_events_attestation') }}

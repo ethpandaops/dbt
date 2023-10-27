@@ -101,7 +101,8 @@ WITH min_max_slot_time AS (
     FROM
         {{ source('clickhouse', 'beacon_api_eth_v1_events_attestation') }}
     WHERE
-        meta_network_name = 'mainnet'
+        slot_start_date_time >= NOW() - INTERVAL '2 DAY'
+        AND meta_network_name = 'mainnet'
 ),
 
 attesting_validators AS (

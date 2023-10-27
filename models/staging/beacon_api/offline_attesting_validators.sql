@@ -8,7 +8,6 @@
     distributed=True,
 ) }}
 
-
 -- this calculates what time window to populate.
 -- depending on what data is available we need to make choices;
 --  - does this model exist? if not, populate from the source
@@ -102,7 +101,8 @@ WITH min_max_slot_time AS (
     FROM
         {{ source('clickhouse', 'beacon_api_eth_v1_beacon_committee') }}
     WHERE
-        meta_network_name = 'mainnet'
+        slot_start_date_time >= NOW() - INTERVAL '2 DAY'
+        AND meta_network_name = 'mainnet'
 ),
 
 expected_validators AS (

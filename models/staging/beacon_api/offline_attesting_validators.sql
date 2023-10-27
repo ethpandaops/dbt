@@ -25,7 +25,6 @@ WITH min_max_slot_time AS (
                     (
                         SELECT MAX(slot_started_at)
                         FROM {{ this }}
-                        WHERE network = 'mainnet'
                     ) IS NULL
                     -- fall back to the source beginning
                     THEN MIN(slot_start_date_time)
@@ -34,7 +33,6 @@ WITH min_max_slot_time AS (
                     (
                         SELECT MAX(slot_started_at) - INTERVAL 30 MINUTE
                         FROM {{ this }}
-                        WHERE network = 'mainnet'
                     )
             END AS start_time,
             -- end_time
@@ -44,7 +42,6 @@ WITH min_max_slot_time AS (
                     (
                         SELECT MAX(slot_started_at)
                         FROM {{ this }}
-                        WHERE network = 'mainnet'
                     ) IS NULL
                     -- fall back to the source ending with 1 minute buffer
                     THEN
@@ -62,7 +59,6 @@ WITH min_max_slot_time AS (
                     (
                         SELECT MAX(slot_started_at) + INTERVAL 4 HOUR
                         FROM {{ this }}
-                        WHERE network = 'mainnet'
                     )
                     <= MAX(slot_start_date_time)
                     -- check if the model latest slot time plus 4 hours
@@ -70,7 +66,6 @@ WITH min_max_slot_time AS (
                     AND (
                         SELECT MAX(slot_started_at) + INTERVAL 4 HOUR
                         FROM {{ this }}
-                        WHERE network = 'mainnet'
                     )
                     < NOW() - INTERVAL 12 SECOND
                     -- this model is still front filling
@@ -78,7 +73,6 @@ WITH min_max_slot_time AS (
                         (
                             SELECT MAX(slot_started_at) + INTERVAL 4 HOUR
                             FROM {{ this }}
-                            WHERE network = 'mainnet'
                         )
                 -- check if the model latest slot time is less than NOW() - 12s
                 WHEN MAX(slot_start_date_time) < NOW() - INTERVAL 12 SECOND

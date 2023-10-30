@@ -117,3 +117,25 @@ models:
       description: predicted consensus layer client.
     - name: occurrences
       description: total number of attesting validators.
+  - name: attestation_nearest_client
+    config:
+      tags: ['beacon', 'attestation', 'geolocation']
+    description: >
+      The nearest client to report an attestation for a given slot and validator index.
+    columns:
+    - name: unique_key
+      description: xxHash32 of the slot number concatenated with the network name.
+    - name: updated_at
+      description: when this record was last updated.
+    - name: slot
+      description: slot number associated with the attestation data.
+    - name: slot_started_at
+      description: timestamp when the slot started.
+    - name: network
+      description: network name, e.g. mainnet.
+    - name: validator_index
+      description: validator index associated with the attestation data.
+    - name: nearest_client_country
+      description: nearest client country.
+    - name: nearest_client_continent_code
+      description: nearest client continent code.

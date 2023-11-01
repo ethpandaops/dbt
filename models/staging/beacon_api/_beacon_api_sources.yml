@@ -2577,3 +2577,183 @@ sources:
     - name: meta_labels
       type: Map(String, String)
       description: Labels associated with the event
+  - name: block_native_mempool_transaction
+    meta:
+      networks: mainnet
+    tags: ['blocknative', 'execution', 'mempool', 'transaction', 'tx']
+    description: >
+      Contains transactions from block native mempool dataset. This table uses clickhouses replacing merge tree, so you must use the FINAL keyword when querying.
+    columns:
+    - name: unique_key
+      type: Int64
+      description: Unique key for the row
+    - name: updated_date_time
+      type: DateTime
+      description: When this row was last updated
+    - name: detecttime
+      type: DateTime64(3)
+      description: Timestamp that the transaction was detected in mempool
+    - name: hash
+      type: FixedString(66)
+      description: Unique identifier hash for a given transaction
+    - name: status
+      type: LowCardinality(String)
+      description: Status of the transaction
+    - name: region
+      type: LowCardinality(String)
+      description: The geographic region for the node that detected the transaction
+    - name: reorg
+      type: Nullable(FixedString(66))
+      description: If there was a reorg, refers to the blockhash of the reorg
+    - name: replace
+      type: Nullable(FixedString(66))
+      description: If the transaction was replaced (speedup/cancel), the transaction hash of the replacement
+    - name: curblocknumber
+      type: Nullable(UInt64)
+      description: The block number the event was detected in
+    - name: failurereason
+      type: Nullable(String)
+      description: If a transaction failed, this field provides contextual information
+    - name: blockspending
+      type: Nullable(UInt64)
+      description: If a transaction was finalized (confirmed, failed), this refers to the number of blocks that the transaction was waiting to get on-chain
+    - name: timepending
+      type: Nullable(UInt64)
+      description: If a transaction was finalized (confirmed, failed), this refers to the time in milliseconds that the transaction was waiting to get on-chain
+    - name: nonce
+      type: UInt64
+      description: A unique number which counts the number of transactions sent from a given address
+    - name: gas
+      type: UInt64
+      description: The maximum number of gas units allowed for the transaction
+    - name: gasprice
+      type: UInt128
+      description: The price offered to the miner/validator per unit of gas. Denominated in wei
+    - name: value
+      type: UInt128
+      description: The amount of ETH transferred or sent to contract. Denominated in wei
+    - name: toaddress
+      type: Nullable(FixedString(42))
+      description: The destination of a given transaction
+    - name: fromaddress
+      type: FixedString(42)
+      description: The source/initiator of a given transaction
+    - name: datasize
+      type: UInt32
+      description: The size of the call data of the transaction in bytes
+    - name: data4bytes
+      type: Nullable(FixedString(10))
+      description: The first 4 bytes of the call data of the transaction
+    - name: network
+      type: LowCardinality(String)
+      description: The specific Ethereum network used
+    - name: type
+      type: UInt8
+      description: "Post EIP-1559, this indicates how the gas parameters are submitted to the network: - type 0 - legacy - type 1 - usage of access lists according to EIP-2930 - type 2 - using maxpriorityfeepergas and maxfeepergas"
+    - name: maxpriorityfeepergas
+      type: Nullable(UInt128)
+      description: The maximum value for a tip offered to the miner/validator per unit of gas. The actual tip paid can be lower if (maxfee - basefee) < maxpriorityfee. Denominated in wei
+    - name: maxfeepergas
+      type: Nullable(UInt128)
+      description: The maximum value for the transaction fee (including basefee and tip) offered to the miner/validator per unit of gas. Denominated in wei
+    - name: basefeepergas
+      type: Nullable(UInt128)
+      description: The fee per unit of gas paid and burned for the curblocknumber. This fee is algorithmically determined. Denominated in wei
+    - name: dropreason
+      type: Nullable(String)
+      description: If the transaction was dropped from the mempool, this describes the contextual reason for the drop
+    - name: rejectionreason
+      type: Nullable(String)
+      description: If the transaction was rejected from the mempool, this describes the contextual reason for the rejection
+    - name: stuck
+      type: Bool
+      description: A transaction was detected in the queued area of the mempool and is not eligible for inclusion in a block
+    - name: gasused
+      type: Nullable(UInt64)
+      description: If the transaction was published on-chain, this value indicates the amount of gas that was actually consumed. Denominated in wei
+  - name: mempool_dumpster_transaction
+    meta:
+      networks: mainnet
+    tags: ['mempooldumpster', 'execution', 'mempool', 'transaction', 'tx']
+    description: >
+      Contains transactions from mempool dumpster dataset. This table uses clickhouses replacing merge tree, so you must use the FINAL keyword when querying.
+    columns:
+    - name: unique_key
+      type: Int64
+      description: Unique key for the row
+    - name: updated_date_time
+      type: DateTime
+      description: When this row was last updated
+    - name: timestamp_ms
+      type: DateTime64(3)
+      description: Timestamp of the transaction
+    - name: hash
+      type: FixedString(66)
+      description: The hash of the transaction
+    - name: chain_id
+      type: UInt32
+      description: The chain id of the transaction
+    - name: from
+      type: FixedString(42)
+      description: The address of the account that sent the transaction
+    - name: to
+      type: Nullable(FixedString(42))
+      description: The address of the account that is the transaction recipient
+    - name: value
+      type: UInt128
+      description: The value transferred with the transaction in wei
+    - name: nonce
+      type: UInt64
+      description: The nonce of the sender account at the time of the transaction
+    - name: gas
+      type: UInt64
+      description: The maximum gas provided for the transaction execution
+    - name: gas_price
+      type: UInt128
+      description: The gas price of the transaction in wei
+    - name: gas_tip_cap
+      type: Nullable(UInt128)
+      description: The gas tip cap of the transaction in wei
+    - name: gas_fee_cap
+      type: Nullable(UInt128)
+      description: The gas fee cap of the transaction in wei
+    - name: data_size
+      type: UInt32
+      description: The size of the call data of the transaction in bytes
+    - name: data_4bytes
+      type: Nullable(FixedString(10))
+      description: The first 4 bytes of the call data of the transaction
+    - name: sources
+      type: Array(LowCardinality(String))
+      description: The sources that saw this transaction in their mempool
+    - name: included_at_block_height
+      type: Nullable(UInt64)
+      description: The block height at which this transaction was included
+    - name: included_block_timestamp_ms
+      type: Nullable(DateTime64(3))
+      description: The timestamp of the block at which this transaction was included
+    - name: inclusion_delay_ms
+      type: Nullable(Int64)
+      description: The delay between the transaction timestamp and the block timestamp
+  - name: mempool_dumpster_transaction_source
+    meta:
+      networks: mainnet
+    tags: ['mempooldumpster', 'execution', 'mempool', 'transaction', 'tx', 'source']
+    description: >
+      Contains transaction sources from mempool dumpster dataset. This table uses clickhouses replacing merge tree, so you must use the FINAL keyword when querying.
+    columns:
+    - name: unique_key
+      type: Int64
+      description: Unique key for the row
+    - name: updated_date_time
+      type: DateTime
+      description: When this row was last updated
+    - name: timestamp_ms
+      type: DateTime64(3)
+      description: Timestamp of when the source saw the transaction
+    - name: hash
+      type: FixedString(66)
+      description: The hash of the transaction
+    - name: source
+      type: FixedString(66)
+      description: The source that saw this transaction in their mempool

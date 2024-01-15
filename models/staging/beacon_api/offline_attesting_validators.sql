@@ -21,13 +21,13 @@ WITH min_max_slot_time AS (
             -- start_time
             CASE
                 WHEN
-                    -- check if this model is empty
-                    (
-                        SELECT MAX(slot_started_at)
-                        FROM {{ this }}
-                    ) IS NULL
+                    -- Check if there are no rows
+                    (SELECT COUNT(*) FROM {{ this }}) = 0
+                    OR 
+                    -- Check if the maximum value is NULL
+                    (SELECT MAX(slot_started_at) FROM {{ this }}) IS NULL
                     -- fall back to the source beginning
-                    THEN MIN(slot_start_date_time)
+                THEN MIN(slot_start_date_time) + INTERVAL 1 MONTH
                 ELSE
                     -- select the latest slot time minus 30 minutes
                     (
@@ -38,40 +38,32 @@ WITH min_max_slot_time AS (
             -- end_time
             CASE
                 WHEN
-                    -- check if this model is empty
-                    (
-                        SELECT MAX(slot_started_at)
-                        FROM {{ this }}
-                    ) IS NULL
+                    -- Check if there are no rows
+                    (SELECT COUNT(*) FROM {{ this }}) = 0
+                    OR 
+                    -- Check if the maximum value is NULL
+                    (SELECT MAX(slot_started_at) FROM {{ this }}) IS NULL
                     -- fall back to the source ending with 1 minute buffer
-                    THEN
-                        CASE
-                            WHEN
-                                -- make sure never to go past NOW() - 12s
-                                MAX(slot_start_date_time)
-                                < NOW() - INTERVAL 12 SECOND
-                                THEN MAX(slot_start_date_time)
-                            ELSE NOW() - INTERVAL 12 SECOND
-                        END
+                    THEN MIN(slot_start_date_time) + INTERVAL 1 MONTH + INTERVAL 1 HOUR
                 WHEN
                     -- check model latest slot time plus 4 hours is
                     -- less than the source latest slot time
                     (
-                        SELECT MAX(slot_started_at) + INTERVAL 4 HOUR
+                        SELECT MAX(slot_started_at) + INTERVAL 1 HOUR
                         FROM {{ this }}
                     )
                     <= MAX(slot_start_date_time)
                     -- check if the model latest slot time plus 4 hours
                     -- is less than NOW() - 12s
                     AND (
-                        SELECT MAX(slot_started_at) + INTERVAL 4 HOUR
+                        SELECT MAX(slot_started_at) + INTERVAL 1 HOUR
                         FROM {{ this }}
                     )
                     < NOW() - INTERVAL 12 SECOND
                     -- this model is still front filling
                     THEN
                         (
-                            SELECT MAX(slot_started_at) + INTERVAL 4 HOUR
+                            SELECT MAX(slot_started_at) + INTERVAL 1 HOUR
                             FROM {{ this }}
                         )
                 -- check if the model latest slot time is less than NOW() - 12s
@@ -90,8 +82,8 @@ WITH min_max_slot_time AS (
             -- end_time
             CASE
                 -- check if front filling
-                WHEN MIN(slot_start_date_time) + INTERVAL 4 HOUR <= MAX(slot_start_date_time) AND MIN(slot_start_date_time) + INTERVAL 4 HOUR < NOW() - INTERVAL 12 SECOND
-                THEN MIN(slot_start_date_time) + INTERVAL 4 HOUR
+                WHEN MIN(slot_start_date_time) + INTERVAL 1 HOUR <= MAX(slot_start_date_time) AND MIN(slot_start_date_time) + INTERVAL 1 HOUR < NOW() - INTERVAL 12 SECOND
+                THEN MIN(slot_start_date_time) + INTERVAL 1 HOUR
                 -- check if source is less than NOW() - 12s
                 WHEN MAX(slot_start_date_time) < NOW() - INTERVAL 12 SECOND
                 THEN MAX(slot_start_date_time)

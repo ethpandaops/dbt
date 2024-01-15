@@ -23,7 +23,7 @@ WITH min_max_slot_time AS (
                 WHEN
                     -- Check if there are no rows
                     (SELECT COUNT(*) FROM {{ this }}) = 0
-                    OR 
+                    OR
                     -- Check if the maximum value is NULL
                     (SELECT MAX(slot_started_at) FROM {{ this }}) IS NULL
                     -- fall back to the source beginning
@@ -40,11 +40,11 @@ WITH min_max_slot_time AS (
                 WHEN
                     -- Check if there are no rows
                     (SELECT COUNT(*) FROM {{ this }}) = 0
-                    OR 
+                    OR
                     -- Check if the maximum value is NULL
                     (SELECT MAX(slot_started_at) FROM {{ this }}) IS NULL
                     -- fall back to the source ending with 1 minute buffer
-                    THEN MIN(slot_start_date_time) + INTERVAL 1 HOUR
+                THEN MIN(slot_start_date_time) + INTERVAL 1 HOUR
                 WHEN
                     -- check model latest slot time plus 4 hours is
                     -- less than the source latest slot time

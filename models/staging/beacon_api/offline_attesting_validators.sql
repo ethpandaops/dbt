@@ -75,6 +75,8 @@ WITH min_max_slot_time AS (
             END AS end_time
         FROM
             {{ source('clickhouse', 'beacon_api_eth_v1_beacon_committee') }}
+        WHERE
+            meta_network_name = 'mainnet'
     {% else %}
         SELECT
             -- start_time
@@ -92,6 +94,8 @@ WITH min_max_slot_time AS (
             END AS end_time
         FROM
             {{ source('clickhouse', 'beacon_api_eth_v1_beacon_committee') }}
+        WHERE
+            meta_network_name = 'mainnet'
     {% endif %}
 ),
 
@@ -104,7 +108,8 @@ expected_validators AS (
     FROM
         {{ source('clickhouse', 'beacon_api_eth_v1_beacon_committee') }}
     WHERE
-        slot_start_date_time BETWEEN (
+        meta_network_name = 'mainnet'
+        AND slot_start_date_time BETWEEN (
             SELECT start_time FROM min_max_slot_time
         ) AND (
             SELECT end_time FROM min_max_slot_time
@@ -120,7 +125,8 @@ attested_validators AS (
     FROM
         {{ source('clickhouse', 'beacon_api_eth_v1_events_attestation') }}
     WHERE
-        slot_start_date_time BETWEEN (
+        meta_network_name = 'mainnet'
+        AND slot_start_date_time BETWEEN (
             SELECT start_time FROM min_max_slot_time
         ) AND (
             SELECT end_time FROM min_max_slot_time

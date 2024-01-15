@@ -27,7 +27,7 @@ WITH min_max_slot_time AS (
                     -- Check if the maximum value is NULL
                     (SELECT MAX(slot_started_at) FROM {{ this }}) IS NULL
                     -- fall back to the source beginning
-                THEN MIN(slot_start_date_time) + INTERVAL 1 MONTH
+                THEN MIN(slot_start_date_time)
                 ELSE
                     -- select the latest slot time minus 30 minutes
                     (
@@ -44,7 +44,7 @@ WITH min_max_slot_time AS (
                     -- Check if the maximum value is NULL
                     (SELECT MAX(slot_started_at) FROM {{ this }}) IS NULL
                     -- fall back to the source ending with 1 minute buffer
-                    THEN MIN(slot_start_date_time) + INTERVAL 1 MONTH + INTERVAL 1 HOUR
+                    THEN MIN(slot_start_date_time) + INTERVAL 1 HOUR
                 WHEN
                     -- check model latest slot time plus 4 hours is
                     -- less than the source latest slot time

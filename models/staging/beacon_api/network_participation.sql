@@ -1,24 +1,22 @@
-{{ config(
-    materialized="incremental",
-    incremental_strategy="append",
-    engine="ReplicatedReplacingMergeTree('/clickhouse/{installation}/{cluster}/tables/{shard}/{database}/{table}/{uuid}', '{replica}', updated_at)",
-    order_by="(unique_key)",
-    unique_key="unique_key",
-    sharding_key="unique_key",
-    distributed=True,
-) }}
+{% set interval = '1 DAY' %}
+{% set grace_period = '1 HOUR' %}
+{% set current_time = run_started_at.strftime('%Y-%m-%d %H:%M:%S') %}
 
-WITH min_slot_time AS (
-    {% if is_incremental() %}
-        SELECT MAX(slot_started_at) - INTERVAL '15 MINUTE' AS start_time
-        FROM {{ this }}
-    {% else %}
-        SELECT MIN(slot_start_date_time) AS start_time
-        FROM {{ source('clickhouse', 'beacon_api_eth_v1_beacon_committee') }}
-    {% endif %}
-),
+{{
+    config(
+        materialized='distributed_incremental',
+        engine="ReplicatedReplacingMergeTree('/clickhouse/{installation}/{cluster}/tables/{shard}/{database}/{table}/{uuid}', '{replica}', updated_at)",
+        incremental_strategy='append',
+        order_by="(unique_key)",
+        unique_key="unique_key",
+        sharding_key="unique_key",
+        post_hook="INSERT INTO {{ target.schema }}.model_metadata (create_date_time, model, target_date_time) SELECT NOW(), '{{ this }}', CASE WHEN MAX(target_date_time) = '1970-01-01 00:00:00' THEN parseDateTime64BestEffortOrNull('" ~ current_time ~ "') ELSE LEAST(MAX(target_date_time) + INTERVAL " ~ interval ~ ", parseDateTime64BestEffortOrNull('" ~ current_time ~ "')) END as end_time FROM {{ target.schema }}.model_metadata WHERE model = '{{ this }}'"
+    )
+}}
 
-attesting AS (
+{% set run_times = check_model_metadata_run_times(this, "'" ~ current_time ~ "'", interval) %}
+
+WITH attesting AS (
     SELECT
         slot,
         slot_start_date_time,
@@ -27,11 +25,7 @@ attesting AS (
     FROM
         {{ source('clickhouse', 'beacon_api_eth_v1_events_attestation') }}
     WHERE
-        slot_start_date_time BETWEEN (
-            SELECT start_time FROM min_slot_time
-        ) AND (
-            SELECT start_time + INTERVAL '1 DAY' FROM min_slot_time
-        )
+        slot_start_date_time BETWEEN '{{ run_times.start_time }}' - INTERVAL '{{ grace_period }}' AND '{{ run_times.end_time }}'
     GROUP BY slot, slot_start_date_time, meta_network_name
 ),
 
@@ -51,11 +45,7 @@ total AS (
         FROM
             {{ source('clickhouse', 'beacon_api_eth_v1_beacon_committee') }}
         WHERE
-            slot_start_date_time BETWEEN (
-                SELECT start_time FROM min_slot_time
-            ) AND (
-                SELECT start_time + INTERVAL '1 DAY' FROM min_slot_time
-            )
+            slot_start_date_time BETWEEN '{{ run_times.start_time }}' - INTERVAL '{{ grace_period }}' AND '{{ run_times.end_time }}'
         GROUP BY slot, slot_start_date_time, meta_network_name, committee_index
     )
     GROUP BY slot, slot_start_date_time, meta_network_name

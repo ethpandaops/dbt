@@ -1,102 +1,22 @@
-{{ config(
-    materialized="incremental",
-    incremental_strategy="append",
-    engine="ReplicatedReplacingMergeTree('/clickhouse/{installation}/{cluster}/tables/{shard}/{database}/{table}/{uuid}', '{replica}', updated_at)",
-    order_by="(unique_key)",
-    unique_key="unique_key",
-    sharding_key="unique_key",
-    distributed=True,
-) }}
+{% set interval = '4 HOUR' %}
+{% set grace_period = '5 MINUTE' %}
+{% set current_time = run_started_at.strftime('%Y-%m-%d %H:%M:%S') %}
 
--- this calculates what time window to populate.
--- depending on what data is available we need to make choices;
---  - does this model exist? if not, populate from the source
---  - if the this model empty? if so, populate from the source
---  - this model uses multiple sources so need 12 seconds buffer from now()
---  - only front fill 4 hours at a time to not overload the db
---  - look back 30 minutes to replace data if needed
-WITH min_max_slot_time AS (
-    {% if is_incremental() %}
-        SELECT
-            -- start_time
-            CASE
-                WHEN
-                    -- Check if there are no rows
-                    (SELECT COUNT(*) FROM {{ this }}) = 0
-                    OR
-                    -- Check if the maximum value is NULL
-                    (SELECT MAX(slot_started_at) FROM {{ this }}) IS NULL
-                    -- fall back to the source beginning
-                THEN MIN(slot_start_date_time)
-                ELSE
-                    -- select the latest slot time minus 30 minutes
-                    (
-                        SELECT MAX(slot_started_at) - INTERVAL 30 MINUTE
-                        FROM {{ this }}
-                    )
-            END AS start_time,
-            -- end_time
-            CASE
-                WHEN
-                    -- Check if there are no rows
-                    (SELECT COUNT(*) FROM {{ this }}) = 0
-                    OR
-                    -- Check if the maximum value is NULL
-                    (SELECT MAX(slot_started_at) FROM {{ this }}) IS NULL
-                    -- fall back to the source ending with 1 minute buffer
-                THEN MIN(slot_start_date_time) + INTERVAL 4 HOUR
-                WHEN
-                    -- check model latest slot time plus 4 hours is
-                    -- less than the source latest slot time
-                    (
-                        SELECT MAX(slot_started_at) + INTERVAL 4 HOUR
-                        FROM {{ this }}
-                    )
-                    <= MAX(slot_start_date_time)
-                    -- check if the model latest slot time plus 4 hours
-                    -- is less than NOW() - 12s
-                    AND (
-                        SELECT MAX(slot_started_at) + INTERVAL 4 HOUR
-                        FROM {{ this }}
-                    )
-                    < NOW() - INTERVAL 12 SECOND
-                    -- this model is still front filling
-                    THEN
-                        (
-                            SELECT MAX(slot_started_at) + INTERVAL 4 HOUR
-                            FROM {{ this }}
-                        )
-                -- check if the model latest slot time is less than NOW() - 12s
-                WHEN MAX(slot_start_date_time) < NOW() - INTERVAL 12 SECOND
-                    -- fill to the latest source slot time
-                    THEN MAX(slot_start_date_time)
-                -- otherwise fill to NOW() - 12s
-                ELSE NOW() - INTERVAL 12 SECOND
-            END AS end_time
-        FROM
-            {{ source('clickhouse', 'beacon_api_eth_v1_events_attestation') }}
-    {% else %}
-        SELECT
-            -- start_time
-            MIN(slot_start_date_time) AS start_time,
-            -- end_time
-            CASE
-                -- check if front filling
-                WHEN MIN(slot_start_date_time) + INTERVAL 4 HOUR <= MAX(slot_start_date_time) AND MIN(slot_start_date_time) + INTERVAL 4 HOUR < NOW() - INTERVAL 12 SECOND
-                THEN MIN(slot_start_date_time) + INTERVAL 4 HOUR
-                -- check if source is less than NOW() - 12s
-                WHEN MAX(slot_start_date_time) < NOW() - INTERVAL 12 SECOND
-                THEN MAX(slot_start_date_time)
-                -- otherwise fill to NOW() - 12s
-                ELSE NOW() - INTERVAL 12 SECOND
-            END AS end_time
-        FROM
-            {{ source('clickhouse', 'beacon_api_eth_v1_events_attestation') }}
-        WHERE attesting_validator_index IS NOT NULL
-    {% endif %}
-),
+{{
+    config(
+        materialized='distributed_incremental',
+        engine="ReplicatedReplacingMergeTree('/clickhouse/{installation}/{cluster}/tables/{shard}/{database}/{table}/{uuid}', '{replica}', updated_at)",
+        incremental_strategy='append',
+        order_by="(unique_key)",
+        unique_key="unique_key",
+        sharding_key="unique_key",
+        post_hook="INSERT INTO {{ target.schema }}.model_metadata (create_date_time, model, target_date_time) SELECT NOW(), '{{ this }}', CASE WHEN MAX(target_date_time) = '1970-01-01 00:00:00' THEN parseDateTime64BestEffortOrNull('" ~ current_time ~ "') ELSE LEAST(MAX(target_date_time) + INTERVAL " ~ interval ~ ", parseDateTime64BestEffortOrNull('" ~ current_time ~ "')) END as end_time FROM {{ target.schema }}.model_metadata WHERE model = '{{ this }}'"
+    )
+}}
 
-attesting_validators AS (
+{% set run_times = check_model_metadata_run_times(this, "'" ~ current_time ~ "'", interval) %}
+
+WITH attesting_validators AS (
     SELECT
         slot,
         slot_start_date_time,
@@ -105,11 +25,7 @@ attesting_validators AS (
     FROM
         {{ source('clickhouse', 'beacon_api_eth_v1_events_attestation') }}
     WHERE
-        slot_start_date_time BETWEEN (
-            SELECT start_time FROM min_max_slot_time
-        ) AND (
-            SELECT end_time FROM min_max_slot_time
-        )
+        slot_start_date_time BETWEEN '{{ run_times.start_time }}' - INTERVAL '{{ grace_period }}' AND '{{ run_times.end_time }}'
     GROUP BY
         slot, slot_start_date_time, meta_network_name, attesting_validator_index
 ),

@@ -29,14 +29,3 @@ clean-targets:
 
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
-models:
-  xatu:
-    staging:
-      beacon_api:
-        +materialized: view
-
-vars:
-  replicated_merge_tree_engine_template: >
-    ReplicatedMergeTree('/clickhouse/{installation}/{cluster}/tables/{shard}/{database}/{table}/{uuid}', '{replica}')
-  replicated_replacing_merge_tree_engine_template: >
-    ReplicatedReplacingMergeTree('/clickhouse/{installation}/{cluster}/tables/{shard}/{database}/{table}/{uuid}', '{replica}')

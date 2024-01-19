@@ -7,10 +7,10 @@
         materialized='distributed_incremental',
         engine="ReplicatedReplacingMergeTree('/clickhouse/{installation}/{cluster}/tables/{shard}/{database}/{table}/{uuid}', '{replica}', updated_at)",
         incremental_strategy='append',
-        order_by="(unique_key)",
+        order_by="(slot_started_at, unique_key, network)",
         unique_key="unique_key",
         sharding_key="unique_key",
-        post_hook="INSERT INTO {{ target.schema }}.model_metadata (create_date_time, model, target_date_time) SELECT NOW(), '{{ this }}', CASE WHEN MAX(target_date_time) = '1970-01-01 00:00:00' THEN parseDateTime64BestEffortOrNull('" ~ current_time ~ "') ELSE LEAST(MAX(target_date_time) + INTERVAL " ~ interval ~ ", parseDateTime64BestEffortOrNull('" ~ current_time ~ "')) END as end_time FROM {{ target.schema }}.model_metadata WHERE model = '{{ this }}'"
+        post_hook="INSERT INTO {{ target.schema }}.model_metadata (updated_date_time, model, last_run_date_time) SELECT NOW(), '{{ this }}', CASE WHEN MAX(last_run_date_time) = '1970-01-01 00:00:00' THEN parseDateTime64BestEffortOrNull('" ~ current_time ~ "') ELSE LEAST(MAX(last_run_date_time) + INTERVAL " ~ interval ~ ", parseDateTime64BestEffortOrNull('" ~ current_time ~ "')) END as end_time FROM {{ target.schema }}.model_metadata FINAL WHERE model = '{{ this }}'"
     )
 }}
 

@@ -5,14 +5,14 @@
         {% set last_run_query %}
             SELECT 
                 CASE 
-                    WHEN MAX(target_date_time) = '1970-01-01 00:00:00' THEN formatDateTime({{ current_time }} - INTERVAL {{ interval }}, '%Y-%m-%d %H:%i:%S')
-                    ELSE formatDateTime(MAX(target_date_time), '%Y-%m-%d %H:%i:%S')
+                    WHEN MAX(last_run_date_time) = '1970-01-01 00:00:00' THEN formatDateTime({{ current_time }} - INTERVAL {{ interval }}, '%Y-%m-%d %H:%i:%S')
+                    ELSE formatDateTime(MAX(last_run_date_time), '%Y-%m-%d %H:%i:%S')
                 END as start_time,
                 CASE 
-                    WHEN MAX(target_date_time) = '1970-01-01 00:00:00' THEN formatDateTime(parseDateTime64BestEffortOrNull({{ current_time }}), '%Y-%m-%d %H:%i:%S')
-                    ELSE formatDateTime(LEAST(MAX(target_date_time) + INTERVAL 1 HOUR, parseDateTime64BestEffortOrNull({{ current_time }})), '%Y-%m-%d %H:%i:%S')
+                    WHEN MAX(last_run_date_time) = '1970-01-01 00:00:00' THEN formatDateTime(parseDateTime64BestEffortOrNull({{ current_time }}), '%Y-%m-%d %H:%i:%S')
+                    ELSE formatDateTime(LEAST(MAX(last_run_date_time) + INTERVAL 1 HOUR, parseDateTime64BestEffortOrNull({{ current_time }})), '%Y-%m-%d %H:%i:%S')
                 END as end_time
-            FROM {{ target.schema }}.model_metadata 
+            FROM {{ target.schema }}.model_metadata FINAL
             WHERE model = '{{ model }}'
         {% endset %}
 

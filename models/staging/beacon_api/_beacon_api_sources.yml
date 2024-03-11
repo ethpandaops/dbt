@@ -3203,5 +3203,4 @@ sources:
       description: "Ethereum consensus client implementation that generated the event"
     - name: meta_labels
       type: Map(String, String)
-      description: "Labels associated with the event
-
+      description: "Labels associated with the event"

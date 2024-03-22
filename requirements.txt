@@ -1,4 +1,4 @@
-dbt-clickhouse==1.7.1
-dbt-core==1.7.4
+dbt-clickhouse==1.7.3
+dbt-core==1.7.10
 sqlfluff-templater-dbt==2.3.5
 sqlfluff==2.3.5

@@ -18,11 +18,11 @@
 
 WITH event_blocks AS (
     SELECT
-        slot,
-        MIN(slot_start_date_time) AS slot_started_at,
-        epoch,
+        CAST(slot AS Nullable(Int32)) AS slot,
+        MIN(CAST(slot_start_date_time AS Nullable(DateTime))) AS slot_started_at,
+        CAST(epoch AS Nullable(Int32)) AS epoch,
+        CAST(meta_network_name AS Nullable(String)) AS network,
         CAST(block AS Nullable(FixedString(66))) AS beacon_block_root_hash,
-        meta_network_name AS network,
         COUNT(*) AS total_seen_beacon_api_event_stream
     FROM
         {{ source('clickhouse', 'beacon_api_eth_v1_events_block') }} -- TODO FINAL
@@ -32,10 +32,10 @@ WITH event_blocks AS (
 ),
 gossip_blocks AS (
     SELECT
-        slot,
-        MIN(slot_start_date_time) AS slot_started_at,
-        epoch,
-        meta_network_name AS network,
+        CAST(slot AS Nullable(Int32)) AS slot,
+        MIN(CAST(slot_start_date_time AS Nullable(DateTime))) AS slot_started_at,
+        CAST(epoch AS Nullable(Int32)) AS epoch,
+        CAST(meta_network_name AS Nullable(String)) AS network,
         CAST(block AS Nullable(FixedString(66))) AS beacon_block_root_hash,
         COUNT(*) AS total_seen_gossipsub
     FROM
@@ -46,10 +46,10 @@ gossip_blocks AS (
 ),
 canonical_blocks AS (
     SELECT
-        slot,
-        MIN(slot_start_date_time) AS slot_started_at,
-        epoch,
-        meta_network_name AS network,
+        CAST(slot AS Nullable(Int32)) AS slot,
+        MIN(CAST(slot_start_date_time AS Nullable(DateTime))) AS slot_started_at,
+        CAST(epoch AS Nullable(Int32)) AS epoch,
+        CAST(meta_network_name AS Nullable(String)) AS network,
         CAST(block_root AS Nullable(FixedString(66))) AS beacon_block_root_hash
     FROM
         {{ source('clickhouse', 'canonical_beacon_block') }} FINAL
@@ -59,10 +59,10 @@ canonical_blocks AS (
 ),
 combined_blocks AS (
     SELECT
-        COALESCE(e.slot, g.slot, c.slot) AS slot,
-        COALESCE(e.slot_started_at, g.slot_started_at, c.slot_started_at) AS slot_started_at,
-        COALESCE(e.epoch, g.epoch, c.epoch) AS epoch,
-        COALESCE(e.network, g.network, c.network) AS network,
+        CAST(COALESCE(e.slot, g.slot, c.slot) AS Int32) AS slot,
+        CAST(COALESCE(e.slot_started_at, g.slot_started_at, c.slot_started_at) AS DateTime) AS slot_started_at,
+        CAST(COALESCE(e.epoch, g.epoch, c.epoch) AS Int32) AS epoch,
+        CAST(COALESCE(e.network, g.network, c.network) AS String) AS network,
         c.beacon_block_root_hash AS canonical_beacon_block_root_hash,
         arrayJoin(if(e.beacon_block_root_hash IS NOT NULL, [e.beacon_block_root_hash], [NULL])) AS non_canonical_beacon_api_event_stream_block_root_hash,
         arrayJoin(if(g.beacon_block_root_hash IS NOT NULL, [g.beacon_block_root_hash], [NULL])) AS non_canonical_gossipsub_block_root_hash,

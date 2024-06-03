@@ -1,5 +1,5 @@
-{% set interval = '1 DAY' %}
-{% set grace_period = '3 HOUR' %}
+{% set interval = '1 MONTH' %}
+{% set grace_period = '1 DAY' %}
 {% set current_time = run_started_at.strftime('%Y-%m-%d %H:%M:%S') %}
 
 {{
@@ -64,8 +64,8 @@ combined_blocks AS (
         COALESCE(e.epoch, g.epoch, c.epoch) AS epoch,
         COALESCE(e.network, g.network, c.network) AS network,
         c.beacon_block_root_hash AS canonical_beacon_block_root_hash,
-        arrayJoin(if(e.beacon_block_root_hash IS NOT NULL, [e.beacon_block_root_hash], [])) AS non_canonical_beacon_api_event_stream_block_root_hash,
-        arrayJoin(if(g.beacon_block_root_hash IS NOT NULL, [g.beacon_block_root_hash], [])) AS non_canonical_gossipsub_block_root_hash,
+        arrayJoin(if(e.beacon_block_root_hash IS NOT NULL, [e.beacon_block_root_hash], [NULL])) AS non_canonical_beacon_api_event_stream_block_root_hash,
+        arrayJoin(if(g.beacon_block_root_hash IS NOT NULL, [g.beacon_block_root_hash], [NULL])) AS non_canonical_gossipsub_block_root_hash,
         e.total_seen_beacon_api_event_stream AS total_seen_beacon_api_event_stream,
         g.total_seen_gossipsub AS total_seen_gossipsub
     FROM

@@ -3204,3 +3204,116 @@ sources:
     - name: meta_labels
       type: Map(String, String)
       description: "Labels associated with the event"
+  - name: libp2p_gossipsub_beacon_block
+    columns:
+    - name: unique_key
+      description: ""
+      data_type: Int64
+    - name: updated_date_time
+      description: ""
+      data_type: DateTime
+    - name: event_date_time
+      description: ""
+      data_type: DateTime64(3)
+    - name: slot
+      description: ""
+      data_type: UInt32
+    - name: slot_start_date_time
+      description: ""
+      data_type: DateTime
+    - name: epoch
+      description: ""
+      data_type: UInt32
+    - name: epoch_start_date_time
+      description: ""
+      data_type: DateTime
+    - name: wallclock_slot
+      description: ""
+      data_type: UInt32
+    - name: wallclock_slot_start_date_time
+      description: ""
+      data_type: DateTime
+    - name: wallclock_epoch
+      description: ""
+      data_type: UInt32
+    - name: wallclock_epoch_start_date_time
+      description: ""
+      data_type: DateTime
+    - name: propagation_slot_start_diff
+      description: ""
+      data_type: UInt32
+    - name: block
+      description: ""
+      data_type: FixedString(66)
+    - name: proposer_index
+      description: ""
+      data_type: UInt32
+    - name: peer_id_unique_key
+      description: ""
+      data_type: Int64
+    - name: message_id
+      description: ""
+      data_type: String
+    - name: message_size
+      description: ""
+      data_type: UInt32
+    - name: topic_layer
+      description: ""
+      data_type: LowCardinality(String)
+    - name: topic_fork_digest_value
+      description: ""
+      data_type: LowCardinality(String)
+    - name: topic_name
+      description: ""
+      data_type: LowCardinality(String)
+    - name: topic_encoding
+      description: ""
+      data_type: LowCardinality(String)
+    - name: meta_client_name
+      description: ""
+      data_type: LowCardinality(String)
+    - name: meta_client_id
+      description: ""
+      data_type: String
+    - name: meta_client_version
+      description: ""
+      data_type: LowCardinality(String)
+    - name: meta_client_implementation
+      description: ""
+      data_type: LowCardinality(String)
+    - name: meta_client_os
+      description: ""
+      data_type: LowCardinality(String)
+    - name: meta_client_ip
+      description: ""
+      data_type: Nullable(IPv6)
+    - name: meta_client_geo_city
+      description: ""
+      data_type: LowCardinality(String)
+    - name: meta_client_geo_country
+      description: ""
+      data_type: LowCardinality(String)
+    - name: meta_client_geo_country_code
+      description: ""
+      data_type: LowCardinality(String)
+    - name: meta_client_geo_continent_code
+      description: ""
+      data_type: LowCardinality(String)
+    - name: meta_client_geo_longitude
+      description: ""
+      data_type: Nullable(Float64)
+    - name: meta_client_geo_latitude
+      description: ""
+      data_type: Nullable(Float64)
+    - name: meta_client_geo_autonomous_system_number
+      description: ""
+      data_type: Nullable(UInt32)
+    - name: meta_client_geo_autonomous_system_organization
+      description: ""
+      data_type: Nullable(String)
+    - name: meta_network_id
+      description: ""
+      data_type: Int32
+    - name: meta_network_name
+      description: ""
+      data_type: LowCardinality(String)

@@ -7,12 +7,8 @@ models:
     description: >
       Beacon blocks with how many sentries reported them
     columns:
-    - name: unique_key
-      description: xxHash32 of the beacon block root hash
     - name: updated_at
       description: when this record was last updated
-    - name: beacon_block_root_hash
-      description: hash tree root of the beacon block
     - name: slot
       description: slot number of the beacon block
     - name: slot_started_at
@@ -21,8 +17,16 @@ models:
       description: epoch number of the beacon block
     - name: network
       description: network name, e.g. mainnet
-    - name: total_witnesses
-      description: total number of sentries that witnessed this block
+    - name: canonical_beacon_block_root_hash
+      description: hash tree root of the canonical beacon block
+    - name: non_canonical_beacon_api_event_stream_block_root_hashes
+      description: array of hash tree roots of the non-canonical beacon block reported by the beacon-api-event-stream
+    - name: non_canonical_gossipsub_block_root_hashes
+      description: array of hash tree roots of the non-canonical beacon block reported by the gossipsub
+    - name: total_seen_beacon_api_event_stream
+      description: total number of sentries that witnessed this block via the beacon-api-event-stream
+    - name: total_seen_gossipsub
+      description: total number of sentries that witnessed this block via the gossipsub
   - name: attestation_divergence
     config:
       tags: ['beacon', 'attestation']

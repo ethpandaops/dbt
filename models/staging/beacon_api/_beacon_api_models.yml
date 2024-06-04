@@ -27,6 +27,26 @@ models:
       description: total number of sentries that witnessed this block via the beacon-api-event-stream
     - name: total_seen_gossipsub
       description: total number of sentries that witnessed this block via the gossipsub
+  - name: block_blobs
+    config:
+      tags: ['beacon', 'block', 'blob']
+    description: >
+      Beacon block blobs 
+    columns:
+    - name: updated_at
+      description: when this record was last updated
+    - name: slot
+      description: slot number of the beacon block
+    - name: slot_started_at
+      description: when the slot started
+    - name: epoch
+      description: epoch number of the beacon block
+    - name: network
+      description: network name, e.g. mainnet
+    - name: beacon_block_root_hash
+      description: hash tree root of the beacon block
+    - name: blob_count
+      description: total number of blobs in the beacon block
   - name: attestation_divergence
     config:
       tags: ['beacon', 'attestation']

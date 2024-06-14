@@ -121,6 +121,9 @@ combined_blobs AS (
     FULL OUTER JOIN
         canonical_blobs c
         ON COALESCE(e.slot, g.slot) = c.slot AND COALESCE(e.epoch, g.epoch) = c.epoch AND COALESCE(e.network, g.network) = c.network
+    WHERE
+        -- handle case where blobs are only propagated in gossipsub layer (libp2p_gossipsub_blob_sidecar)
+        COALESCE(c.beacon_block_root_hash, e.beacon_block_root_hash, g.beacon_block_root_hash) IS NOT NULL
 )
 SELECT
     NOW() AS updated_at,
